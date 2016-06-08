@@ -1,4 +1,5 @@
 #include "sudoku.h"
+#include <assert.h>
 
 int sudoku_cell_candidates(const sudoku_cell_t *cell) {
     int candidates = 0;
@@ -164,7 +165,7 @@ sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
     // reset everything
     for(int c = 0; c < 9; c++) {
         for(int r = 0; r < 9; r++) {
-            sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, c, r);
+            sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, r, c);
 
             for(int n = 0; n < 9; n++) {
                 cell->numbers[n] = false;
@@ -219,4 +220,90 @@ error:
     return NULL;
 }
 
+void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle) {
+    int pos = 0;
+
+    for(int r = 0; r < 9; r++) {
+        for(int c = 0; c < 9; c++) {
+            const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, r, c);
+
+            packed[pos] = 0;
+
+            for(int n = 0; n < 8; n++) {
+                packed[pos] <<= 1;
+                packed[pos] += (cell->numbers[n]) ? 1 : 0;
+            }
+
+            pos++;
+        }
+    }
+
+    for(int r = 0; r < 9; r++) {
+        packed[pos] = 0;
+
+        for(int c = 0; c < 8; c++) {
+            packed[pos] <<= 1;
+
+            const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, r, c);
+
+            packed[pos] += cell->numbers[8] ? 1 : 0;
+        }
+
+        pos++;
+    }
+
+    packed[pos] = 0;
+
+    for(int r = 0; r < 8; r++) {
+        packed[pos] <<= 1;
+
+        const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, r, 8);
+
+        packed[pos] += cell->numbers[8] ? 1 : 0;
+    }
+
+    pos++;
+    packed[pos] = _sudoku_puzzle_cell(puzzle, 8, 8)->numbers[8] ? 255 : 0;
+
+    assert(pos == 91);
+}
+
+sudoku_puzzle_t sudoku_puzzle_unpack(const char packed[92]) {
+    sudoku_puzzle_t puzzle;
+    sudoku_cell_t *cell;
+    int pos = 0;
+
+    for(int r = 0; r < 9; r++) {
+        for(int c = 0; c < 9; c++) {
+            cell = sudoku_puzzle_cell(&puzzle, r, c);
+
+            for(int n = 0; n < 8; n++) {
+                cell->numbers[n] = (packed[pos] >> (7-n)) & 1;
+            }
+
+            pos++;
+        }
+    }
+
+    for(int r = 0; r < 9; r++) {
+        for(int c = 0; c < 8; c++) {
+            cell = sudoku_puzzle_cell(&puzzle, r, c);
+
+            cell->numbers[8] = (packed[pos] >> (7-c)) & 1;
+        }
+
+        pos++;
+    }
+
+    for(int r = 0; r < 8; r++) {
+        cell = sudoku_puzzle_cell(&puzzle, r, 8);
+        cell->numbers[8] = (packed[pos] >> (7-r)) & 1;
+    }
+
+    pos++;
+    cell = sudoku_puzzle_cell(&puzzle, 8, 8);
+    cell->numbers[8] = packed[pos] >> 7;
+
+    return puzzle;
+}
 

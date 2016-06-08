@@ -33,4 +33,8 @@ json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle);
 
 sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json);
 
+void sudoku_puzzle_pack(unsigned char out[92], const sudoku_puzzle_t *puzzle);
+
+sudoku_puzzle_t sudoku_puzzle_unpack(const char packed[92]);
+
 #endif
