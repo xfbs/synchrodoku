@@ -12,4 +12,8 @@ write: write.c
 mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
 	cd mpack && make
 
-.PHONY: all
+clean:
+	$(RM) manager write reader
+	cd mpack && make clean
+
+.PHONY: all clean
