@@ -1,6 +1,7 @@
 #ifndef SUDOKU_H
 #define SUDOKU_H
 #include <stdbool.h>
+#include <jansson.h>
 
 typedef struct sudoku_cell {
     bool numbers[9];
@@ -27,5 +28,9 @@ sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int ro
 sudoku_cell_t sudoku_puzzle_candidates_col(const sudoku_puzzle_t *puzzle, int col);
 
 sudoku_cell_t sudoku_cell_intersect(const sudoku_cell_t *a, const sudoku_cell_t *b);
+
+json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle);
+
+sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json);
 
 #endif

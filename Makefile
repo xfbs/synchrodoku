@@ -9,6 +9,9 @@ reader: reader.c
 write: write.c
 	clang -o write write.c -Impack -Lmpack -lmpack
 
+sudoku.o: sudoku.h sudoku.c
+	clang -c sudoku.c -I/usr/local/include
+
 mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
 	cd mpack && make
 
