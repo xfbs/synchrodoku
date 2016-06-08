@@ -1,3 +1,4 @@
 manager
 reader
 write
+*.o
