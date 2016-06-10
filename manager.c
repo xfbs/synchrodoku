@@ -9,19 +9,41 @@
 
 void *worker_task(void *);
 void *context;
+pthread manager_thread;
 
 int
 main(int argc, char *argv[])
 {
+    return 0;
+}
+
+void manager_start(int thread_count)
+{
     // create a new zmq context for use in this program
     // this is shared among all threads
-    context = zmq_ctx_new ();
+    context = zmq_ctx_new();
 
     // we can set the number of IO threads to 0 because
     // we are only using inter-thread communication
     zmq_ctx_set (context, ZMQ_IO_THREADS, 0);
-    
+
+    pthread_create(&manager_thread, NULL, manager_loop, &thread_count);
+}
+
+void manager_stop(void)
+{
+    void *connection = zmq_socket(context, ZMQ_REQ);
+
+    int ret = zmq_connect(connection, "inproc://control");
+    assert(ret == 0);
+
+    // send SHUTDOWN message?
+}
+
+void manager_loop(void *data)
+{
     // create new socket
+    void *clients = zmq_socket(context, ZMQ_REP);
     void *tasks = zmq_socket(context, ZMQ_PUSH);
     void *responses = zmq_socket(context, ZMQ_PULL);
     
@@ -31,6 +53,8 @@ main(int argc, char *argv[])
     ret = zmq_bind (tasks, "inproc://tasks");
     assert(ret == 0);
     ret = zmq_bind(responses, "inproc://responses");
+    assert(ret == 0);
+    ret = zmq_bind(clients, "inproc://control");
     assert(ret == 0);
 
     printf("[manager] bound to sockets\n");
@@ -126,7 +150,11 @@ worker_task(void *opts)
         }
 
         fflush(stdout);
-        usleep(50000);
+        if(number == 4) {
+            usleep(200000);
+        } else {
+            usleep(50000);
+        }
 
         // otherwise, pass the data right back
         zmq_send(responses, buffer, len, ZMQ_DONTWAIT);
