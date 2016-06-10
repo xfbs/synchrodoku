@@ -1,5 +1,5 @@
 .DEFAULT: all
-TESTS = sudoku
+TESTS = sudoku solver
 
 all: compile
 clean: $(TESTS:%=%/clean) cu/clean
