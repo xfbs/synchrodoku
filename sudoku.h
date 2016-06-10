@@ -17,6 +17,8 @@ bool sudoku_cell_solvable(const sudoku_cell_t *cell);
 
 int sudoku_cell_solution(const sudoku_cell_t *cell);
 
+int sudoku_cell_candidates(const sudoku_cell_t *cell);
+
 sudoku_cell_t *sudoku_puzzle_cell(sudoku_puzzle_t *puzzle, int row, int col);
 
 bool sudoku_puzzle_solved(const sudoku_puzzle_t *puzzle);
