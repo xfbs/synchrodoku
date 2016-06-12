@@ -10,6 +10,12 @@ TEST(cell_intersect_works);
 TEST(pack_works_on_empty);
 TEST(pack_preserves_bits);
 
+/* solver_solve.c */
+TEST(solve_works_with_empty_sudoku);
+
+/* solver_diverge.c */
+
+/* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
     TEST_ADD(cell_solved_works),
     TEST_ADD(cell_solved_works_with_unsolvable_cell),
@@ -24,16 +30,28 @@ TEST_SUITE(sudoku_pack) {
     TEST_SUITE_CLOSURE
 };
 
+/* solver tests suites */
+TEST_SUITE(solver_solve) {
+    TEST_ADD(solve_works_with_empty_sudoku),
+    TEST_SUITE_CLOSURE
+};
+
+TEST_SUITE(solver_diverge) {
+    TEST_SUITE_CLOSURE
+};
+
 /* test suites */
 TEST_SUITES {
     TEST_SUITE_ADD(sudoku_cell),
     TEST_SUITE_ADD(sudoku_pack),
+    TEST_SUITE_ADD(solver_solve),
+    TEST_SUITE_ADD(solver_diverge),
     TEST_SUITES_CLOSURE
 };
 int main(int argc, char *argv[])
 {
-    CU_SET_NAME("sudoku");
-    CU_SET_OUT_PREFIX("output/");
+    CU_SET_NAME("synchrodoku");
+    CU_SET_OUT_PREFIX("tests/output/");
     CU_RUN(argc, argv);
 
     // set return value according to whether

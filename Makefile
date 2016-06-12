@@ -1,6 +1,6 @@
 CC = clang
 RM = rm -rf
-CFLAGS = -g Wall -pedantic -std=gnu99
+CFLAGS = -g -Wall -pedantic -std=gnu99
 FILES = sudoku solver worker
 TARGET = libsynchrodoku.a
 HEADERS = $(FILES:%=%.h)
@@ -9,25 +9,24 @@ PKGLIBS = glib-2.0 jansson
 INCLUDE = /usr/local/include ./mpack .
 LIBSDIR = /usr/local/lib ./mpack ./cu
 DEPS = mpack/libmpack.a
-TESTS = sudoku solver
 TEST_DEPS = cu/libcu.a
 
-CFLAGS = $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
+CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
 
 $(TARGET): $(FILES:%=%.o) $(DEPS)
 	ar cr $@ $^
 	ranlib $@
 
-tests: $(TARGET) $(TEST_DEPS) $(TESTS:%=./tests/%/output)
+tests: $(TARGET) $(TEST_DEPS) ./tests/output
 
-./tests/%/output: ./tests/%/run_tests FORCE
+./tests/output: ./tests/run_tests FORCE
 	@test -d $@ || mkdir $@
 	$<
 
 FORCE:
 
-./tests/%/run_tests: ./tests/%/helpers.o ./tests/%/tests.o ./tests/%/all_tests.o
+./tests/run_tests: $(patsubst %.c,%.o,$(wildcard ./tests/*.c))
 	$(CC) -o $@ $^ $(LDFLAGS) -lcu -L. -lsynchrodoku
 
 mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
