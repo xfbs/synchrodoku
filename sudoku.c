@@ -307,3 +307,61 @@ sudoku_puzzle_t sudoku_puzzle_unpack(const char packed[92]) {
     return puzzle;
 }
 
+sudoku_puzzle_t sudoku_puzzle_empty() {
+    sudoku_puzzle_t puzzle;
+
+    for(int r = 0; r < 9; r++) {
+        for(int c = 0; c < 9; c++) {
+            sudoku_cell_t *cell = sudoku_puzzle_cell(&puzzle, r, c);
+
+            *cell = sudoku_cell_empty();
+        }
+    }
+
+    return puzzle;
+}
+
+sudoku_cell_t sudoku_cell_empty() {
+    sudoku_cell_t cell;
+
+    for(int n = 0; n < 9; n++) {
+        cell.numbers[n] = false;
+    }
+
+    return cell;
+}
+
+sudoku_cell_t sudoku_cell_single(int num) {
+    sudoku_cell_t cell = sudoku_cell_empty();
+
+    if(num >= 1 && num <= 9) {
+        cell.numbers[num-1] = true;
+    }
+
+    return cell;
+}
+
+sudoku_cell_t sudoku_cell_multiple(int poss[]) {
+    sudoku_cell_t cell = sudoku_cell_empty();
+
+    for(int i = 0; poss[i] != 0; i++) {
+        if(poss[i] >= 1 && poss[i] <= 9) {
+            cell.numbers[poss[i]-1] = true;
+        }
+    }
+
+    return cell;
+}
+
+sudoku_puzzle_t sudoku_puzzle_single(int numbers[9][9]) {
+    sudoku_puzzle_t puzzle = sudoku_puzzle_empty();;
+
+    for(int r = 0; r < 9; r++) {
+        for(int c = 0; c < 9; c++) {
+            sudoku_cell_t *cell = sudoku_puzzle_cell(&puzzle, r, c);
+            *cell = sudoku_cell_single(numbers[r][c]);
+        }
+    }
+
+    return puzzle;
+}

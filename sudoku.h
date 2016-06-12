@@ -19,6 +19,18 @@ int sudoku_cell_solution(const sudoku_cell_t *cell);
 
 int sudoku_cell_candidates(const sudoku_cell_t *cell);
 
+sudoku_cell_t sudoku_cell_empty();
+
+sudoku_cell_t sudoku_cell_single(int num);
+
+sudoku_cell_t sudoku_cell_multiple(int poss[]);
+
+sudoku_cell_t sudoku_cell_intersect(const sudoku_cell_t *a, const sudoku_cell_t *b);
+
+sudoku_puzzle_t sudoku_puzzle_empty();
+
+sudoku_puzzle_t sudoku_puzzle_single(int numbers[9][9]);
+
 sudoku_cell_t *sudoku_puzzle_cell(sudoku_puzzle_t *puzzle, int row, int col);
 
 bool sudoku_puzzle_solved(const sudoku_puzzle_t *puzzle);
@@ -28,8 +40,6 @@ bool sudoku_puzzle_solvable(const sudoku_puzzle_t *puzzle);
 sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int row);
 
 sudoku_cell_t sudoku_puzzle_candidates_col(const sudoku_puzzle_t *puzzle, int col);
-
-sudoku_cell_t sudoku_cell_intersect(const sudoku_cell_t *a, const sudoku_cell_t *b);
 
 json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle);
 
