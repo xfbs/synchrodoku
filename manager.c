@@ -6,6 +6,12 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <glib.h>
+
+typedef struct {
+    int id;
+    unsigned char sudoku[92];
+} manager_workset;
 
 void *worker_task(void *);
 void *context;
@@ -32,18 +38,39 @@ void manager_start(int thread_count)
 
 void manager_stop(void)
 {
-    void *connection = zmq_socket(context, ZMQ_REQ);
+    void *requests = zmq_socket(context, ZMQ_REQ);
 
-    int ret = zmq_connect(connection, "inproc://control");
+    int ret = zmq_connect(requests, "inproc://control");
     assert(ret == 0);
 
     // send SHUTDOWN message?
+    char *data;
+    size_t size;
+    mpack_writer_t writer;
+    mapck_writer_init_growable(&writer, &data, &size);
+
+    mpack_start_map(&writer, 1);
+    mpack_write_cstr(&writer, "type");
+    mpack_write_cstr(&writer, "shutdown");
+    mpack_finish_map(&writer);
+
+    if(mpack_writer_destroy(&writer) != mpack_ok) {
+        assert(false);
+    }
+
+    zmq_send(context, data, size, 0);
+
+    // zmq_revc() ?
+
+    free(data);
+    zmq_ctx_destroy(context);
 }
 
 void manager_loop(void *data)
 {
     // create new socket
-    void *clients = zmq_socket(context, ZMQ_REP);
+    void *requests = zmq_socket(context, ZMQ_REP);
+    void *solutions = zmq_socket(context, ZMQ_PUB);
     void *tasks = zmq_socket(context, ZMQ_PUSH);
     void *responses = zmq_socket(context, ZMQ_PULL);
     
@@ -54,7 +81,9 @@ void manager_loop(void *data)
     assert(ret == 0);
     ret = zmq_bind(responses, "inproc://responses");
     assert(ret == 0);
-    ret = zmq_bind(clients, "inproc://control");
+    ret = zmq_bind(requests, "inproc://requests");
+    assert(ret == 0);
+    ret = zmq_bind(solutions, "inproc://responses");
     assert(ret == 0);
 
     printf("[manager] bound to sockets\n");
@@ -68,23 +97,34 @@ void manager_loop(void *data)
     printf("[manager] started workers\n");
     usleep(500000);
 
-    // send all workers some message
-    for(int i = 0; i < 255; i++) {
-        char mesg[] = {23, 56};
-        zmq_send(tasks, mesg, 2, ZMQ_DONTWAIT);
-    }
-    
-    printf("[manager] sent some messages\n");
-    fflush(stdout);
+    // work queues
+    GList *partial_solutions = g_list_alloc();
+    GList *final_solutions = g_list_alloc();
+    assert(partial_solutions != NULL);
+    assert(final_solutions != NULL);
 
-    // wait for all responses
-    for(int i = 0; i < 255; i++) {
-        char data[255];
-        int size = zmq_recv(responses, data, 255, 0);
-        assert(size > 0);
+    bool shutdown = false;
+    bool stop = false;
+
+    while(!stop) {
+        // send all workers some message
+        for(int i = 0; i < 255; i++) {
+            char mesg[] = {23, 56};
+            zmq_send(tasks, mesg, 2, ZMQ_DONTWAIT);
+        }
+        
+        printf("[manager] sent some messages\n");
+        fflush(stdout);
+
+        // wait for all responses
+        for(int i = 0; i < 255; i++) {
+            char data[255];
+            int size = zmq_recv(responses, data, 255, 0);
+            assert(size > 0);
+        }
     }
 
-    printf("[manager] got all replies\n");
+        printf("[manager] got all replies\n");
 
     // send all workers kill message
     for(int i = 0; i < 10; i++) {
@@ -103,7 +143,8 @@ void manager_loop(void *data)
 
     zmq_close(tasks);
     zmq_close(responses);
-    zmq_ctx_destroy(context);
+    zmq_close(requests);
+    zmq_close(solutions);
 
     return 0;
 }
