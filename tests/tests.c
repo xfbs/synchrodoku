@@ -54,7 +54,7 @@ TEST_SUITE(sudoku_pack) {
 /* solver tests suites */
 TEST_SUITE(solver_solve) {
     TEST_ADD(solve_works_with_empty_sudoku),
-    TEST_ADD(solve_works_with_solved_sudoku),
+    //TEST_ADD(solve_works_with_solved_sudoku),
     TEST_SUITE_CLOSURE
 };
 
