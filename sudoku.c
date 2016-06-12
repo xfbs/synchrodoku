@@ -370,7 +370,7 @@ sudoku_puzzle_t sudoku_puzzle_new(int numbers[9][9]) {
         for(int c = 0; c < 9; c++) {
             sudoku_cell_t *cell = sudoku_puzzle_cell(&puzzle, r, c);
 
-            if(cell != 0) {
+            if(numbers[r][c] != 0) {
                 *cell = sudoku_cell_single(numbers[r][c]);
             } else {
                 *cell = sudoku_cell_any();
