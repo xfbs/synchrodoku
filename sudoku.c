@@ -165,19 +165,12 @@ sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
     }
 
     sudoku_puzzle_t *puzzle = malloc(sizeof(sudoku_puzzle_t));;
-    
-    // reset everything
-    for(int c = 0; c < 9; c++) {
-        for(int r = 0; r < 9; r++) {
-            sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, r, c);
+    assert(puzzle != NULL);
 
-            for(int n = 0; n < 9; n++) {
-                cell->numbers[n] = false;
-            }
-        }
-    }
+    *puzzle = sudoku_puzzle_empty();
 
     // iterare thru json array
+    // TODO fix jansson calls (memory safety!)
     int col, row, n;
     json_t *jcol, *jcell, *jcandidate;
     json_array_foreach(json, col, jcol) {
