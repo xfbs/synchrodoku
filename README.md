@@ -1,5 +1,7 @@
 # Synchodoku
 
+[![Build Status](https://travis-ci.org/xfbs/synchrodoku.svg?branch=master)](https://travis-ci.org/xfbs/synchrodoku)
+
 This is a (pretty crazy) experiment to write
 a sudoku solver in C that uses message-passing
 concurrency instead of doing a naïve recursive approach
