@@ -2,3 +2,4 @@ manager
 reader
 write
 *.o
+*.a
