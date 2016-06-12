@@ -6,10 +6,11 @@ TEST(cell_solved_works_with_unsolvable_cell);
 TEST(cell_solved_works_with_unsolved_cell);
 TEST(cell_intersect_works);
 TEST(cell_candidates_works);
+TEST(cell_constructors_work);
 
 /* sudoku_puzzle.c */
 TEST(puzzle_new_works_with_full_sudoku);
-TEST(puzzle_new_works_with_empty_sudoku);
+//TEST(puzzle_new_works_with_empty_sudoku);
 
 /* sudoku_pack.c */
 TEST(pack_works_on_empty);
@@ -29,12 +30,13 @@ TEST_SUITE(sudoku_cell) {
     TEST_ADD(cell_solved_works_with_unsolved_cell),
     TEST_ADD(cell_intersect_works),
     TEST_ADD(cell_candidates_works),
+    TEST_ADD(cell_constructors_work),
     TEST_SUITE_CLOSURE
 };
 
 TEST_SUITE(sudoku_puzzle) {
     TEST_ADD(puzzle_new_works_with_full_sudoku),
-    TEST_ADD(puzzle_new_works_with_empty_sudoku),
+    //TEST_ADD(puzzle_new_works_with_empty_sudoku),
     TEST_SUITE_CLOSURE
 };
 

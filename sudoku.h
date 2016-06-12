@@ -26,6 +26,8 @@ sudoku_cell_t sudoku_cell_single(int num);
 
 sudoku_cell_t sudoku_cell_new(int poss[]);
 
+sudoku_cell_t sudoku_cell_any();
+
 sudoku_cell_t sudoku_cell_intersect(const sudoku_cell_t *a, const sudoku_cell_t *b);
 
 sudoku_puzzle_t sudoku_puzzle_empty();

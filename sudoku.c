@@ -357,13 +357,28 @@ sudoku_cell_t sudoku_cell_new(int poss[]) {
     return cell;
 }
 
+sudoku_cell_t sudoku_cell_any() {
+    sudoku_cell_t cell;
+
+    for(int n = 0; n < 9; n++) {
+        cell.numbers[n] = true;
+    }
+
+    return cell;
+}
+
 sudoku_puzzle_t sudoku_puzzle_new(int numbers[9][9]) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();;
 
     for(int r = 0; r < 9; r++) {
         for(int c = 0; c < 9; c++) {
             sudoku_cell_t *cell = sudoku_puzzle_cell(&puzzle, r, c);
-            *cell = sudoku_cell_single(numbers[r][c]);
+
+            if(cell != 0) {
+                *cell = sudoku_cell_single(numbers[r][c]);
+            } else {
+                *cell = sudoku_cell_any();
+            }
         }
     }
 
