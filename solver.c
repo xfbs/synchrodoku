@@ -17,12 +17,14 @@ bool solve_simple(sudoku_puzzle_t *puzzle) {
         for(int row = 0; row < 9; row++) {
             for(int col = 0; col < 9; col++) {
                 sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, row, col);
-                sudoku_cell_t intersect = sudoku_cell_intersect(&rows[row], &cols[col]);
-                intersect = sudoku_cell_intersect(&intersect, cell);
+                if(!sudoku_cell_solved(cell)) {
+                    sudoku_cell_t intersect = sudoku_cell_intersect(&rows[row], &cols[col]);
+                    intersect = sudoku_cell_intersect(&intersect, cell);
 
-                if(sudoku_cell_candidates(&intersect) < sudoku_cell_candidates(cell)) {
-                    changed = true;
-                    *cell = intersect;
+                    if(sudoku_cell_candidates(&intersect) < sudoku_cell_candidates(cell)) {
+                        changed = true;
+                        *cell = intersect;
+                    }
                 }
             }
         }
