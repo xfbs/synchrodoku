@@ -7,11 +7,12 @@ LIBS = pthread czmq zmq mpack
 PKGLIBS = glib-2.0 jansson
 INCLUDE = /usr/local/include ./mpack
 LIBSDIR = /usr/local/lib ./mpack
+DEPS = mpack/libmpack.a
 
 CFLAGS = $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
 
-$(TARGET): $(FILES:%=%.o)
+$(TARGET): $(FILES:%=%.o) $(DEPS)
 	ar cr $@ $^
 	ranlib $@
 
@@ -28,8 +29,8 @@ $(TARGET): $(FILES:%=%.o)
 #sudoku.o: sudoku.h sudoku.c
 #	clang -c sudoku.c -I/usr/local/include
 
-#mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
-#	cd mpack && make
+mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
+	cd mpack && make
 
 clean:
 	$(RM) $(FILES:%=%.o) $(TARGET)
