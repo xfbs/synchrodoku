@@ -13,6 +13,8 @@
 #include "sudoku.h"
 #include "solver.h"
 
-void worker_task(void *opts);
+void *context;
+
+void *worker_loop(void *opts);
 
 #endif
