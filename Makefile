@@ -1,13 +1,16 @@
 CC = clang
+RM = rm -rf
 CFLAGS = -g Wall -pedantic -std=gnu99
 FILES = sudoku solver worker
 TARGET = libsynchrodoku.a
 HEADERS = $(FILES:%=%.h)
 LIBS = pthread czmq zmq mpack
 PKGLIBS = glib-2.0 jansson
-INCLUDE = /usr/local/include ./mpack
-LIBSDIR = /usr/local/lib ./mpack
+INCLUDE = /usr/local/include ./mpack .
+LIBSDIR = /usr/local/lib ./mpack ./cu
 DEPS = mpack/libmpack.a
+TESTS = sudoku solver
+TEST_DEPS = cu/libcu.a
 
 CFLAGS = $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
@@ -16,24 +19,29 @@ $(TARGET): $(FILES:%=%.o) $(DEPS)
 	ar cr $@ $^
 	ranlib $@
 
+tests: $(TARGET) $(TEST_DEPS) $(TESTS:%=./tests/%/output)
 
-#manager: manager.c mpack/libmpack.a
-#	clang -o manager manager.c -Impack -I/usr/local/include -Lmpack -L/usr/local/lib -lmpack -lczmq -lpthread -lzmq
+./tests/%/output: ./tests/%/run_tests FORCE
+	@test -d $@ || mkdir $@
+	$<
 
-#reader: reader.c
-#	clang -o reader reader.c -Impack -Lmpack -lmpack
+FORCE:
 
-#write: write.c
-#	clang -o write write.c -Impack -Lmpack -lmpack
-
-#sudoku.o: sudoku.h sudoku.c
-#	clang -c sudoku.c -I/usr/local/include
+./tests/%/run_tests: ./tests/%/helpers.o ./tests/%/tests.o ./tests/%/all_tests.o
+	$(CC) -o $@ $^ $(LDFLAGS) -lcu -L. -lsynchrodoku
 
 mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
 	cd mpack && make
 
+cu/libcu.a: $(wildcard cu/*.h) $(wildcard cu/*.c)
+	cd cu && make
+
 clean:
 	$(RM) $(FILES:%=%.o) $(TARGET)
+	$(RM) $(TESTS:%=./tests/%/*.o)
+	$(RM) $(TESTS:%=./tests/%/run_tests)
+	$(RM) $(TESTS:%=./tests/%/output)
 	cd mpack && make clean
+	cd cu && make clean
 
-.PHONY: clean
+.PHONY: clean tests
