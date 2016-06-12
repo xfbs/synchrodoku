@@ -70,6 +70,10 @@ bool sudoku_puzzle_solvable(const sudoku_puzzle_t *puzzle) {
     return true;
 }
 
+bool sudoku_puzzle_valid(const sudoku_puzzle_t *puzzle) {
+    return true;
+}
+
 sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int row) {
     const sudoku_puzzle_t *p = (const sudoku_puzzle_t *) puzzle;
     sudoku_cell_t cell;
@@ -268,7 +272,7 @@ void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle)
     assert(pos == 91);
 }
 
-sudoku_puzzle_t sudoku_puzzle_unpack(const char packed[92]) {
+sudoku_puzzle_t sudoku_puzzle_unpack(const unsigned char packed[92]) {
     sudoku_puzzle_t puzzle;
     sudoku_cell_t *cell;
     int pos = 0;
@@ -341,7 +345,7 @@ sudoku_cell_t sudoku_cell_single(int num) {
     return cell;
 }
 
-sudoku_cell_t sudoku_cell_multiple(int poss[]) {
+sudoku_cell_t sudoku_cell_new(int poss[]) {
     sudoku_cell_t cell = sudoku_cell_empty();
 
     for(int i = 0; poss[i] != 0; i++) {
@@ -353,7 +357,7 @@ sudoku_cell_t sudoku_cell_multiple(int poss[]) {
     return cell;
 }
 
-sudoku_puzzle_t sudoku_puzzle_single(int numbers[9][9]) {
+sudoku_puzzle_t sudoku_puzzle_new(int numbers[9][9]) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();;
 
     for(int r = 0; r < 9; r++) {
