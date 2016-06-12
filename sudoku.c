@@ -173,12 +173,14 @@ sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
     // TODO fix jansson calls (memory safety!)
     int col, row, n;
     json_t *jcol, *jcell, *jcandidate;
-    json_array_foreach(json, col, jcol) {
+    for(col = 0; col < json_array_size(json); col++) {
+        jcol = json_array_get(json, col);
         if(!json_is_array(jcol)) {
             goto error;
         }
 
-        json_array_foreach(jcol, row, jcell) {
+        for(row = 0; row < json_array_size(jcol); row++) {
+            jcell = json_array_get(jcol, row);
             sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, row, col);
             if(json_is_integer(jcell)) {
                 // extract integer
@@ -190,7 +192,8 @@ sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
 
                 cell->numbers[val-1] = true;
             } else if(json_is_array(jcell)) {
-                json_array_foreach(jcell, n, jcandidate) {
+                for(n = 0; n < json_array_size(jcell); n++) {
+                    jcandidate = json_array_get(jcell, n);
                     if(json_is_integer(jcandidate)) {
                         // extract integer
                         int val = json_integer_value(jcandidate);
