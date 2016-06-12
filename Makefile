@@ -37,9 +37,7 @@ cu/libcu.a: $(wildcard cu/*.h) $(wildcard cu/*.c)
 
 clean:
 	$(RM) $(FILES:%=%.o) $(TARGET)
-	$(RM) $(TESTS:%=./tests/%/*.o)
-	$(RM) $(TESTS:%=./tests/%/run_tests)
-	$(RM) $(TESTS:%=./tests/%/output)
+	$(RM) tests/*.o tests/output tests/run_tests
 	cd mpack && make clean
 	cd cu && make clean
 
