@@ -5,6 +5,7 @@ TEST(cell_solved_works);
 TEST(cell_solved_works_with_unsolvable_cell);
 TEST(cell_solved_works_with_unsolved_cell);
 TEST(cell_intersect_works);
+TEST(cell_candidates_works);
 
 /* sudoku_pack.c */
 TEST(pack_works_on_empty);
@@ -21,6 +22,7 @@ TEST_SUITE(sudoku_cell) {
     TEST_ADD(cell_solved_works_with_unsolvable_cell),
     TEST_ADD(cell_solved_works_with_unsolved_cell),
     TEST_ADD(cell_intersect_works),
+    TEST_ADD(cell_candidates_works),
     TEST_SUITE_CLOSURE
 };
 

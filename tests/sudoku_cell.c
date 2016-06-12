@@ -71,3 +71,19 @@ TEST(cell_intersect_works) {
     assertEquals(sudoku_cell_solvable(&res), true);
     assertEquals(sudoku_cell_solution(&res), 0);
 }
+
+TEST(cell_candidates_works) {
+    sudoku_cell_t cell = sudoku_cell_empty();
+
+    for(int i = 0; i < 9; i++) {
+        assertEquals(sudoku_cell_candidates(&cell), i);
+        cell.numbers[i] = true;
+    }
+
+    cell = sudoku_cell_empty();
+    cell.numbers[3] = true;
+    cell.numbers[6] = true;
+    assertEquals(sudoku_cell_candidates(&cell), 2);
+    cell.numbers[8] = true;
+    assertEquals(sudoku_cell_candidates(&cell), 3);
+}
