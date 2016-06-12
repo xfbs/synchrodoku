@@ -1,4 +1,7 @@
 language: c
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y libjansson-dev libglib2.0-dev libzmq3-dev
 script: make tests
 notifications:
       email: false
