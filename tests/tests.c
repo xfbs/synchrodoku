@@ -23,6 +23,7 @@ TEST(pack_works_with_random);
 TEST(solve_works_with_empty_sudoku);
 TEST(solve_works_with_solved_sudoku);
 TEST(solve_works_with_partially_solved_sudoku);
+TEST(solve_stops_on_diverge);
 
 /* solver_diverge.c */
 
@@ -57,6 +58,7 @@ TEST_SUITE(solver_solve) {
     TEST_ADD(solve_works_with_empty_sudoku),
     TEST_ADD(solve_works_with_solved_sudoku),
     TEST_ADD(solve_works_with_partially_solved_sudoku),
+    TEST_ADD(solve_stops_on_diverge),
     TEST_SUITE_CLOSURE
 };
 
