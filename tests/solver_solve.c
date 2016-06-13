@@ -28,7 +28,38 @@ TEST(solve_works_with_solved_sudoku) {
 }
 
 TEST(solve_works_with_partially_solved_sudoku) {
-    sudoku_puzzle_t puzzle = sudoku_puzzle_new((int[9][9]){
+    sudoku_puzzle_t puzzles[] = {
+        sudoku_puzzle_new((int[9][9]){
+            {1, 2, 3, 4, 5, 6, 7, 8, 9},
+            {4, 5, 6, 7, 8, 9, 1, 2, 3},
+            {7, 8, 9, 1, 2, 3, 4, 5, 6},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {5, 6, 7, 8, 9, 1, 2, 3, 4},
+            {8, 9, 1, 2, 3, 4, 5, 6, 7},
+            {3, 4, 5, 6, 7, 8, 9, 1, 2},
+            {6, 7, 8, 9, 1, 2, 3, 4, 5},
+            {9, 1, 2, 3, 4, 5, 6, 7, 8}}),
+        sudoku_puzzle_new((int[9][9]){
+            {1, 2, 0, 4, 5, 6, 7, 8, 9},
+            {4, 5, 0, 7, 8, 9, 1, 2, 3},
+            {7, 8, 0, 1, 2, 3, 4, 5, 6},
+            {2, 3, 0, 5, 6, 7, 8, 9, 1},
+            {5, 6, 0, 8, 9, 1, 2, 3, 4},
+            {8, 9, 0, 2, 3, 4, 5, 6, 7},
+            {3, 4, 0, 6, 7, 8, 9, 1, 2},
+            {6, 7, 0, 9, 1, 2, 3, 4, 5},
+            {9, 1, 0, 3, 4, 5, 6, 7, 8}}),
+        sudoku_puzzle_new((int[9][9]){
+            {0, 2, 3, 4, 0, 6, 7, 8, 0},
+            {4, 5, 6, 7, 8, 9, 1, 2, 3},
+            {7, 8, 9, 1, 2, 3, 4, 5, 6},
+            {2, 3, 4, 5, 6, 7, 8, 9, 1},
+            {0, 6, 7, 8, 0, 1, 2, 3, 0},
+            {8, 9, 1, 2, 3, 4, 5, 6, 7},
+            {3, 4, 5, 6, 7, 8, 9, 1, 2},
+            {6, 7, 8, 9, 1, 2, 3, 4, 5},
+            {0, 1, 2, 3, 0, 5, 6, 7, 0}}),
+        sudoku_puzzle_new((int[9][9]){
             {1, 0, 0, 4, 5, 6, 7, 8, 9},
             {4, 5, 6, 7, 8, 9, 1, 2, 3},
             {7, 8, 9, 1, 2, 3, 4, 5, 6},
@@ -37,7 +68,7 @@ TEST(solve_works_with_partially_solved_sudoku) {
             {8, 9, 1, 2, 3, 0, 5, 6, 7},
             {3, 4, 5, 6, 7, 8, 9, 0, 2},
             {6, 7, 8, 9, 1, 2, 3, 4, 5},
-            {9, 1, 0, 3, 4, 5, 0, 7, 8}});
+            {9, 1, 0, 3, 4, 5, 0, 7, 8}})};
 
     sudoku_puzzle_t solved = sudoku_puzzle_new((int[9][9]){
             {1, 2, 3, 4, 5, 6, 7, 8, 9},
@@ -50,8 +81,10 @@ TEST(solve_works_with_partially_solved_sudoku) {
             {6, 7, 8, 9, 1, 2, 3, 4, 5},
             {9, 1, 2, 3, 4, 5, 6, 7, 8}});
 
-    assertEquals(solve_simple(&puzzle), true);
-    assertEquals(sudoku_puzzle_equals_strict(&puzzle, &solved), true);
+    for(int i = 0; i < 4; i++) {
+        assertEquals(solve_simple(&puzzles[i]), true);
+        assertEquals(sudoku_puzzle_equals_strict(&puzzles[i], &solved), true);
+    }
 }
 
 TEST(solve_stops_on_diverge) {
