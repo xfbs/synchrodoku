@@ -168,4 +168,53 @@ TEST(puzzle_candidates_col_works) {
     assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
 }
 
+TEST(puzzle_candidates_square_works) {
+    sudoku_puzzle_t puzzle = sudoku_puzzle_new((int[9][9]){
+        {1, 2, 3, 4, 0, 6, 0, 0, 0},
+        {4, 5, 6, 7, 0, 9, 0, 0, 0},
+        {7, 8, 9, 1, 0, 3, 0, 0, 0},
+        {0, 0, 0, 5, 6, 7, 8, 0, 1},
+        {5, 6, 7, 0, 0, 0, 0, 3, 0},
+        {8, 9, 1, 2, 3, 4, 5, 0, 7},
+        {0, 4, 5, 6, 7, 8, 9, 1, 2},
+        {6, 7, 8, 9, 0, 0, 3, 4, 5},
+        {9, 1, 2, 3, 4, 5, 6, 0, 8}});
 
+    sudoku_cell_t candidates, expected;
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 0, 0);
+    expected = sudoku_cell_new((int[]){0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 0, 3);
+    expected = sudoku_cell_new((int[]){2, 8, 5, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 0, 6);
+    expected = sudoku_cell_new((int[]){1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 3, 0);
+    expected = sudoku_cell_new((int[]){2, 3, 4, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 3, 3);
+    expected = sudoku_cell_new((int[]){8, 9, 1, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 3, 6);
+    expected = sudoku_cell_new((int[]){9, 2, 4, 6, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 6, 0);
+    expected = sudoku_cell_new((int[]){3, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 6, 3);
+    expected = sudoku_cell_new((int[]){1, 2, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+
+    candidates = sudoku_puzzle_candidates_square(&puzzle, 6, 6);
+    expected = sudoku_cell_new((int[]){7, 0});
+    assertEquals(sudoku_cell_equals_strict(&candidates, &expected), true);
+}

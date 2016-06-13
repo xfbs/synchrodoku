@@ -14,6 +14,7 @@ TEST(puzzle_new_works_with_empty_sudoku);
 TEST(puzzle_empty_works);
 TEST(puzzle_candidates_row_works);
 TEST(puzzle_candidates_col_works);
+TEST(puzzle_candidates_square_works);
 
 /* sudoku_pack.c */
 TEST(pack_works_on_empty);
@@ -45,6 +46,7 @@ TEST_SUITE(sudoku_puzzle) {
     TEST_ADD(puzzle_empty_works),
     TEST_ADD(puzzle_candidates_row_works),
     TEST_ADD(puzzle_candidates_col_works),
+    TEST_ADD(puzzle_candidates_square_works),
     TEST_SUITE_CLOSURE
 };
 
