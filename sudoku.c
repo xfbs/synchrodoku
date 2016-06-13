@@ -75,16 +75,12 @@ bool sudoku_puzzle_valid(const sudoku_puzzle_t *puzzle) {
 }
 
 sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int row) {
-    const sudoku_puzzle_t *p = (const sudoku_puzzle_t *) puzzle;
-    sudoku_cell_t cell;
-
-    // initialise all numbers to possible
-    for(int i = 0; i < 9; i++) cell.numbers[i] = true;
+    sudoku_cell_t cell = sudoku_cell_any();
 
     // for any cell that has a solution, subtract that
     // from the list of possible solutions
     for(int i = 0; i < 9; i++) {
-        int solution = sudoku_cell_solution(_sudoku_puzzle_cell(p, row, i));
+        int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, row, i));
 
         if(solution != 0) {
             cell.numbers[solution-1] = false;
@@ -95,19 +91,35 @@ sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int ro
 }
 
 sudoku_cell_t sudoku_puzzle_candidates_col(const sudoku_puzzle_t *puzzle, int col) {
-    const sudoku_puzzle_t *p = (const sudoku_puzzle_t *) puzzle;
-    sudoku_cell_t cell;
-
-    // initialise all numbers to possible
-    for(int i = 0; i < 9; i++) cell.numbers[i] = true;
+    sudoku_cell_t cell = sudoku_cell_any();
 
     // for any cell that has a solution, subtract that
     // from the list of possible solutions
     for(int i = 0; i < 9; i++) {
-        int solution = sudoku_cell_solution(_sudoku_puzzle_cell(p, i, col));
+        int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, i, col));
 
         if(solution != 0) {
             cell.numbers[solution-1] = false;
+        }
+    }
+
+    return cell;
+}
+
+sudoku_cell_t sudoku_puzzle_candidates_square(const sudoku_puzzle_t *puzzle, int row, int col) {
+    // adjust row and col to point to upper left cell
+    // of the square
+    row -= row % 3;
+    col -= col % 3;
+    sudoku_cell_t cell = sudoku_cell_any();
+
+    for(int r = 0; r < 3; r++) {
+        for(int c = 0; c < 3; c++) {
+            int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, row+r, col+c));
+
+            if(solution != 0) {
+                cell.numbers[solution-1] = false;
+            }
         }
     }
 

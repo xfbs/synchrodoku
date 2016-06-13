@@ -80,6 +80,10 @@ sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int ro
 // empty cells in the given column
 sudoku_cell_t sudoku_puzzle_candidates_col(const sudoku_puzzle_t *puzzle, int col);
 
+// returns a cell representing the candidates of
+// empty cells in the given square
+sudoku_cell_t sudoku_puzzle_candidates_square(const sudoku_puzzle_t *puzzle, int row, int col);
+
 // convert a sudoku to json format using the jansson library
 json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle);
 
