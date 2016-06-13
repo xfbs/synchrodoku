@@ -23,7 +23,6 @@ TEST(puzzle_new_works_with_full_sudoku) {
     }
 }
 
-/*
 TEST(puzzle_new_works_with_empty_sudoku) {
     int numbers[9][9] = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -39,9 +38,8 @@ TEST(puzzle_new_works_with_empty_sudoku) {
 
     sudoku_puzzle_t puzzle = sudoku_puzzle_new(numbers);
     sudoku_puzzle_t empty = sudoku_puzzle_empty();
-    assertEquals(sudoku_puzzle_equals_strict(&puzzle, &empty), true);
+    assertEquals(sudoku_puzzle_equals(&puzzle, &empty), true);
 }
-*/
 
 TEST(puzzle_empty_works) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();

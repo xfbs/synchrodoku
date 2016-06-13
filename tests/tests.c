@@ -10,7 +10,7 @@ TEST(cell_constructors_work);
 
 /* sudoku_puzzle.c */
 TEST(puzzle_new_works_with_full_sudoku);
-//TEST(puzzle_new_works_with_empty_sudoku);
+TEST(puzzle_new_works_with_empty_sudoku);
 TEST(puzzle_empty_works);
 TEST(puzzle_candidates_row_works);
 
@@ -40,7 +40,7 @@ TEST_SUITE(sudoku_cell) {
 
 TEST_SUITE(sudoku_puzzle) {
     TEST_ADD(puzzle_new_works_with_full_sudoku),
-    //TEST_ADD(puzzle_new_works_with_empty_sudoku),
+    TEST_ADD(puzzle_new_works_with_empty_sudoku),
     TEST_ADD(puzzle_empty_works),
     TEST_ADD(puzzle_candidates_row_works),
     TEST_SUITE_CLOSURE
