@@ -118,3 +118,28 @@ TEST(diverge_returns_correct_amount) {
         g_list_free_full(res, free);
     }
 }
+
+TEST(diverge_returns_correct_sudokus) {
+    sudoku_puzzle_t puzzle = sudoku_puzzle_new((int[9][9]){
+        {0, 0, 3, 4, 5, 6, 7, 8, 9},
+        {4, 5, 6, 7, 8, 9, 0, 0, 3},
+        {7, 8, 9, 0, 0, 3, 4, 5, 6},
+        {0, 3, 4, 5, 6, 7, 8, 9, 0},
+        {5, 6, 7, 8, 9, 0, 0, 3, 4},
+        {8, 9, 0, 0, 3, 4, 5, 6, 7},
+        {3, 4, 5, 6, 7, 8, 9, 0, 0},
+        {6, 7, 8, 9, 0, 0, 3, 4, 5},
+        {9, 0, 0, 3, 4, 5, 6, 7, 8}});
+
+    assertEquals(solve_simple(&puzzle), false);
+
+    sudoku_puzzle_t solutions[] = {puzzle, puzzle};
+    *(sudoku_puzzle_cell(&solutions[0],0,0)) = sudoku_cell_new((int[]){1,0});
+    *(sudoku_puzzle_cell(&solutions[1],0,0)) = sudoku_cell_new((int[]){2,0});
+
+    GList *div = solve_diverge(&puzzle);
+    assertEquals(g_list_length(div), 2);
+
+    assertEquals(sudoku_puzzle_equals_strict(g_list_nth_data(div, 0), &solutions[0]), true);
+    assertEquals(sudoku_puzzle_equals_strict(g_list_nth_data(div, 1), &solutions[1]), true);
+}
