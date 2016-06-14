@@ -34,8 +34,7 @@ TEST(json_preserves_bits) {
     }
 }
 
-/*
-TEST(pack_works_with_random) {
+TEST(json_works_with_random) {
     sudoku_puzzle_t puzzle, unpacked;
 
     puzzle = sudoku_puzzle_new((int[9][9]){
@@ -49,16 +48,18 @@ TEST(pack_works_with_random) {
             {2, 3, 6, 9, 0, 0, 0, 7, 0},
             {5, 1, 2, 9, 8, 5, 5, 8, 7}});
 
-    sudoku_puzzle_pack(packed, &puzzle);
-    unpacked = sudoku_puzzle_unpack(packed);
+    json = sudoku_puzzle_to_json(&puzzle);
+    unpacked = sudoku_puzzle_from_json(json);
+    json_decref(json);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
 
     // modify puzzle slightly
     *(sudoku_puzzle_cell(&puzzle, 2, 2)) = sudoku_cell_new((int[]){3, 5, 9, 0});
     *(sudoku_puzzle_cell(&puzzle, 5, 3)) = sudoku_cell_new((int[]){8, 4, 0});
 
-    sudoku_puzzle_pack(packed, &puzzle);
-    unpacked = sudoku_puzzle_unpack(packed);
+    json = sudoku_puzzle_to_json(&puzzle);
+    unpacked = sudoku_puzzle_from_json(json);
+    json_decref(json);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
 
     puzzle = sudoku_puzzle_new((int[9][9]){
@@ -72,8 +73,8 @@ TEST(pack_works_with_random) {
             {2, 3, 6, 9, 2, 0, 2, 7, 0},
             {5, 1, 2, -1, 8, 6, 6, 8, 7}});
 
-    sudoku_puzzle_pack(packed, &puzzle);
-    unpacked = sudoku_puzzle_unpack(packed);
+    json = sudoku_puzzle_to_json(&puzzle);
+    unpacked = sudoku_puzzle_from_json(json);
+    json_decref(json);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
 }
-*/
