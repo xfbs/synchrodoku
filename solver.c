@@ -50,19 +50,22 @@ GList *solve_diverge(sudoku_puzzle_t *puzzle) {
         return NULL;
     }
 
-    GList *results = g_list_alloc();
-    assert(results != NULL);
-
-    // find the cell with the smallest amount
-    // of candidates
+    // we are looking for the cell with the smallest
+    // amount of candidates, this is the starting
+    // point
     int div_row = 0;
     int div_col = 0;
-    int div_candidates = 9;
+    int div_candidates = sudoku_cell_candidates(sudoku_puzzle_cell(puzzle, 0, 0));;
+    
+    // go through all cells to find it
     for(int row = 0; row < 9; row++) {
         for(int col = 0; col < 9; col++) {
             sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, row, col);
             int cur_candidates = sudoku_cell_candidates(cell);
-            if(cur_candidates < div_candidates) {
+
+            // if the number of candidates is 1, the cell
+            // is solved and we are not interested in it.
+            if(cur_candidates > 1 && cur_candidates < div_candidates) {
                 div_row = row;
                 div_col = col;
                 div_candidates = cur_candidates;
@@ -70,25 +73,31 @@ GList *solve_diverge(sudoku_puzzle_t *puzzle) {
         }
     }
 
-    // this is the cell we are diverging upon
+    GList *results = NULL;
     sudoku_cell_t *div_cell = sudoku_puzzle_cell(puzzle, div_row, div_col);
 
     for(int n = 0; n < 9; n++) {
         if(!div_cell->numbers[n]) continue;
 
+        // allocate new sudoku
         sudoku_puzzle_t *div = malloc(sizeof(sudoku_puzzle_t));
         assert(div != NULL);
+
+        // copy puzzle into new sudoku
         *div = *puzzle;
 
-        sudoku_cell_t *new_cell = sudoku_puzzle_cell(puzzle, div_row, div_col);
-        
+        // but change the cell we are divering
+        // upon to whatever we want to set it
+        sudoku_cell_t *new_cell = sudoku_puzzle_cell(div, div_row, div_col);
         for(int i = 0; i < 9; i++) {
             if(i != n) {
                 new_cell->numbers[i] = false;
             }
         }
 
-        g_list_append(results, div);
+        // add diverged sudoku to list of
+        // results
+        results = g_list_append(results, div);
     }
 
     return results;
