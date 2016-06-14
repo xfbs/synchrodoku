@@ -1,6 +1,21 @@
 #include "helpers.h"
 
 TEST(diverge_returns_solved_sudoku) {
+    sudoku_puzzle_t puzzle = sudoku_puzzle_new((int[9][9]){
+        {1, 2, 3, 4, 5, 6, 7, 8, 9},
+        {4, 5, 6, 7, 8, 9, 1, 2, 3},
+        {7, 8, 9, 1, 2, 3, 4, 5, 6},
+        {2, 3, 4, 5, 6, 7, 8, 9, 1},
+        {5, 6, 7, 8, 9, 1, 2, 3, 4},
+        {8, 9, 1, 2, 3, 4, 5, 6, 7},
+        {3, 4, 5, 6, 7, 8, 9, 1, 2},
+        {6, 7, 8, 9, 1, 2, 3, 4, 5},
+        {9, 1, 2, 3, 4, 5, 6, 7, 8}});
+
+    GList *solved = solve_diverge(&puzzle);
+    assertEquals(g_list_length(solved), 1);
+    assertEquals(sudoku_puzzle_equals(g_list_first(solved)->data, &puzzle), true);
+    g_list_free_full(solved, free);
 }
 
 TEST(diverge_returns_correct_amount) {
