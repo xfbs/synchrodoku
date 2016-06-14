@@ -28,6 +28,8 @@ TEST(solve_works_with_partially_solved_sudoku);
 TEST(solve_stops_on_diverge);
 
 /* solver_diverge.c */
+TEST(diverge_returns_solved_sudoku);
+TEST(diverge_returns_correct_amount);
 
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
@@ -67,6 +69,8 @@ TEST_SUITE(solver_solve) {
 };
 
 TEST_SUITE(solver_diverge) {
+    TEST_ADD(diverge_returns_solved_sudoku),
+    TEST_ADD(diverge_returns_correct_amount),
     TEST_SUITE_CLOSURE
 };
 
