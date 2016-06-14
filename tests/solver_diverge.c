@@ -100,7 +100,6 @@ TEST(diverge_returns_correct_amount) {
         assertEquals(solve_simple(&puzzles[i]), (i==0) ? true : false);
         GList *res = solve_diverge(&puzzles[i]);
         assertEquals(g_list_length(res), i+1);
-        printf("glen: %i, ilen: %i\n", g_list_length(res), i+1);
         g_list_free_full(res, free);
     }
 }
