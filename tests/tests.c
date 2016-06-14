@@ -21,6 +21,9 @@ TEST(pack_works_on_empty);
 TEST(pack_preserves_bits);
 TEST(pack_works_with_random);
 
+/* sudoku_json.c */
+TEST(json_works_on_empty);
+
 /* solver_solve.c */
 TEST(solve_works_with_empty_sudoku);
 TEST(solve_works_with_solved_sudoku);
@@ -59,6 +62,11 @@ TEST_SUITE(sudoku_pack) {
     TEST_SUITE_CLOSURE
 };
 
+TEST_SUITE(sudoku_json) {
+    TEST_ADD(json_works_on_empty),
+    TEST_SUITE_CLOSURE
+};
+
 /* solver tests suites */
 TEST_SUITE(solver_solve) {
     TEST_ADD(solve_works_with_empty_sudoku),
@@ -79,6 +87,7 @@ TEST_SUITES {
     TEST_SUITE_ADD(sudoku_cell),
     TEST_SUITE_ADD(sudoku_puzzle),
     TEST_SUITE_ADD(sudoku_pack),
+    TEST_SUITE_ADD(sudoku_json),
     TEST_SUITE_ADD(solver_solve),
     TEST_SUITE_ADD(solver_diverge),
     TEST_SUITES_CLOSURE
