@@ -171,15 +171,13 @@ json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle) {
     return json;
 }
 
-sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
+sudoku_puzzle_t sudoku_puzzle_from_json(json_t *json) {
+    sudoku_puzzle_t puzzle = sudoku_puzzle_empty();
+
     if(!json_is_array(json)) {
-        return NULL;
+        fprintf(stderr, "something bad happened!\n");
+        return puzzle;
     }
-
-    sudoku_puzzle_t *puzzle = malloc(sizeof(sudoku_puzzle_t));;
-    assert(puzzle != NULL);
-
-    *puzzle = sudoku_puzzle_empty();
 
     // iterare thru json array
     // TODO fix jansson calls (memory safety!)
@@ -188,21 +186,24 @@ sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
     for(col = 0; col < json_array_size(json); col++) {
         jcol = json_array_get(json, col);
         if(!json_is_array(jcol)) {
-            goto error;
+            fprintf(stderr, "something bad happened!\n");
+            break;
         }
 
         for(row = 0; row < json_array_size(jcol); row++) {
             jcell = json_array_get(jcol, row);
-            sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, row, col);
+            sudoku_cell_t *cell = sudoku_puzzle_cell(&puzzle, row, col);
             if(json_is_integer(jcell)) {
                 // extract integer
                 int val = json_integer_value(jcell);
 
                 // make sure integer is in range because
                 // we are using it as an index
-                if(val < 1 || val > 9) goto error;
-
-                cell->numbers[val-1] = true;
+                if(val < 1 || val > 9) {
+                    fprintf(stderr, "something bad happened!\n");
+                } else {
+                    cell->numbers[val-1] = true;
+                }
             } else if(json_is_array(jcell)) {
                 for(n = 0; n < json_array_size(jcell); n++) {
                     jcandidate = json_array_get(jcell, n);
@@ -212,24 +213,22 @@ sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json) {
 
                         // make sure integer is in range because
                         // we are using it as an index
-                        if(val < 1 || val > 9) goto error;
-
-                        cell->numbers[val-1] = true;
+                        if(val < 1 || val > 9) {
+                            fprintf(stderr, "something bad happened!\n");
+                        } else {
+                            cell->numbers[val-1] = true;
+                        }
                     } else {
-                        goto error;
+                        fprintf(stderr, "something bad happened!\n");
                     }
                 }
             } else {
-                goto error;
+                fprintf(stderr, "something bad happened!\n");
             }
         }
     }
 
     return puzzle;
-
-error:
-    free(puzzle);
-    return NULL;
 }
 
 void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle) {

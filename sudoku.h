@@ -88,7 +88,7 @@ sudoku_cell_t sudoku_puzzle_candidates_square(const sudoku_puzzle_t *puzzle, int
 json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle);
 
 // read a sudoku puzzle from json using the jansson library
-sudoku_puzzle_t *sudoku_puzzle_from_json(json_t *json);
+sudoku_puzzle_t sudoku_puzzle_from_json(json_t *json);
 
 // pack a sudoku into a binary representation
 void sudoku_puzzle_pack(unsigned char out[SUDOKU_PACKED_SIZE], const sudoku_puzzle_t *puzzle);
