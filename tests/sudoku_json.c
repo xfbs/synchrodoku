@@ -12,17 +12,18 @@ TEST(json_works_on_empty) {
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
 }
 
-/*
-TEST(pack_preserves_bits) {
+TEST(json_preserves_bits) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();
+    sudoku_puzzle_t unpacked;
 
     for(int r = 0; r < 9; r++) {
         for(int c = 0; c < 9; c++) {
             for(int n = 1; n <= 9; n++) {
                 *(sudoku_puzzle_cell(&puzzle, r, c)) = sudoku_cell_new((int[]){n, 0});
 
-                sudoku_puzzle_pack(packed, &puzzle);
-                sudoku_puzzle_t unpacked = sudoku_puzzle_unpack(packed);
+                json = sudoku_puzzle_to_json(&puzzle);
+                unpacked = sudoku_puzzle_from_json(json);
+                json_decref(json);
                 assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
 
                 if(n == 9) {
@@ -33,6 +34,7 @@ TEST(pack_preserves_bits) {
     }
 }
 
+/*
 TEST(pack_works_with_random) {
     sudoku_puzzle_t puzzle, unpacked;
 

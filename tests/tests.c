@@ -23,6 +23,7 @@ TEST(pack_works_with_random);
 
 /* sudoku_json.c */
 TEST(json_works_on_empty);
+TEST(json_preserves_bits);
 
 /* solver_solve.c */
 TEST(solve_works_with_empty_sudoku);
@@ -64,6 +65,7 @@ TEST_SUITE(sudoku_pack) {
 
 TEST_SUITE(sudoku_json) {
     TEST_ADD(json_works_on_empty),
+    TEST_ADD(json_preserves_bits),
     TEST_SUITE_CLOSURE
 };
 
