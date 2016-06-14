@@ -171,6 +171,9 @@ json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle) {
     return json;
 }
 
+int sudoku_puzzle_from_json_parse_row(sudoku_puzzle_t *puzzle, json_t *jrow, int row);
+sudoku_cell_t sudoku_puzzle_from_json_parse_cell(json_t *jcell);
+
 sudoku_puzzle_t sudoku_puzzle_from_json(json_t *json) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();
 
@@ -180,55 +183,66 @@ sudoku_puzzle_t sudoku_puzzle_from_json(json_t *json) {
     }
 
     // iterare thru json array
-    // TODO fix jansson calls (memory safety!)
-    int col, row, n;
-    json_t *jcol, *jcell, *jcandidate;
-    for(col = 0; col < json_array_size(json); col++) {
-        jcol = json_array_get(json, col);
-        if(!json_is_array(jcol)) {
-            fprintf(stderr, "something bad happened!\n");
-            break;
-        }
+    for(int row = 0; row < json_array_size(json); row++) {
+        json_t *jrow = json_array_get(json, row);
+        sudoku_puzzle_from_json_parse_row(&puzzle, jrow, row);
+    }
 
-        for(row = 0; row < json_array_size(jcol); row++) {
-            jcell = json_array_get(jcol, row);
-            sudoku_cell_t *cell = sudoku_puzzle_cell(&puzzle, row, col);
-            if(json_is_integer(jcell)) {
+    return puzzle;
+}
+
+int sudoku_puzzle_from_json_parse_row(sudoku_puzzle_t *puzzle, json_t *jrow, int row) {
+    if(!json_is_array(jrow)) {
+        fprintf(stderr, "something bad happened!\n");
+        return -1;
+    }
+
+    for(int col = 0; col < json_array_size(jrow); col++) {
+        json_t *jcell = json_array_get(jrow, col);
+        sudoku_cell_t *cell = sudoku_puzzle_cell(puzzle, row, col);
+        *cell = sudoku_puzzle_from_json_parse_cell(jcell);
+    }
+
+    return 0;
+}
+
+sudoku_cell_t sudoku_puzzle_from_json_parse_cell(json_t *jcell) {
+    sudoku_cell_t cell = sudoku_cell_empty();
+
+    if(json_is_integer(jcell)) {
+        // extract integer
+        int val = json_integer_value(jcell);
+
+        // make sure integer is in range because
+        // we are using it as an index
+        if(val >= 1 && val <= 9) {
+            cell.numbers[val-1] = true;
+        } else {
+            fprintf(stderr, "something bad happened!\n");
+        }
+    } else if(json_is_array(jcell)) {
+        for(int n = 0; n < json_array_size(jcell); n++) {
+            json_t *jcandidate = json_array_get(jcell, n);
+            if(json_is_integer(jcandidate)) {
                 // extract integer
-                int val = json_integer_value(jcell);
+                int val = json_integer_value(jcandidate);
 
                 // make sure integer is in range because
                 // we are using it as an index
-                if(val < 1 || val > 9) {
-                    fprintf(stderr, "something bad happened!\n");
+                if(val >= 1 && val <= 9) {
+                    cell.numbers[val-1] = true;
                 } else {
-                    cell->numbers[val-1] = true;
-                }
-            } else if(json_is_array(jcell)) {
-                for(n = 0; n < json_array_size(jcell); n++) {
-                    jcandidate = json_array_get(jcell, n);
-                    if(json_is_integer(jcandidate)) {
-                        // extract integer
-                        int val = json_integer_value(jcandidate);
-
-                        // make sure integer is in range because
-                        // we are using it as an index
-                        if(val < 1 || val > 9) {
-                            fprintf(stderr, "something bad happened!\n");
-                        } else {
-                            cell->numbers[val-1] = true;
-                        }
-                    } else {
-                        fprintf(stderr, "something bad happened!\n");
-                    }
+                    fprintf(stderr, "something bad happened!\n");
                 }
             } else {
                 fprintf(stderr, "something bad happened!\n");
             }
         }
+    } else {
+        fprintf(stderr, "something bad happened!\n");
     }
 
-    return puzzle;
+    return cell;
 }
 
 void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle) {
