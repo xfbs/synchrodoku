@@ -3,24 +3,22 @@
 TEST(request_create_does_not_work_with_error) {
     request_t request = request_error();
 
-    size_t size = 77;
-    char *data = request_create(&size, &request);
+    GBytes *data = request_create(&request);
 
     assertEquals(data, NULL);
-    assertEquals(size, 0);
 }
 
 TEST(request_create_works_with_shutdown) {
     request_t request = request_shutdown();
 
-    size_t size;
-    char *data = request_create(&size, &request);
-    assertNotEquals(size, 0);
+    GBytes *data = request_create(&request);
     assertNotEquals(data, NULL);
+    assertNotEquals(g_bytes_get_size(data), 0);
 
-    request_t parsed = request_parse(data, size);
+    request_t parsed = request_parse(data);
     assertEquals(parsed.type, REQUEST_SHUTDOWN);
-    free(data);
+
+    g_bytes_unref(data);
 }
 
 TEST(request_create_works_with_task) {
@@ -31,20 +29,23 @@ TEST(request_create_works_with_task) {
         12, 23, 55, 33, 66, 77, 34, 99};
     size_t payload_size = 32;
     int id = 93;
+    GBytes *payload_bytes = g_bytes_new_static(payload, payload_size);
 
-    request_t request = request_task(payload, payload_size, id);
+    request_t request = request_task(payload_bytes, id);
 
-    size_t size;
-    char *data = request_create(&size, &request);
-    assertNotEquals(size, 0);
+    GBytes *data = request_create(&request);
     assertNotEquals(data, NULL);
+    assertNotEquals(g_bytes_get_size(data), 0);
 
-    request_t parsed = request_parse(data, size);
+    request_t parsed = request_parse(data);
     assertEquals(parsed.type, REQUEST_TASK);
     assertEquals(parsed.id, id);
 
+    size_t size;
     const char *parsed_payload = g_bytes_get_data(parsed.data, &size);
     assertEquals(size, payload_size);
     assertEquals(strncmp(parsed_payload, payload, payload_size), 0);
-    free(data);
+
+    request_unref(&parsed);
+    request_unref(&request);
 }

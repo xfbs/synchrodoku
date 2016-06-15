@@ -43,11 +43,12 @@ typedef struct {
     int id;
 } response_t;
 
-request_t request_parse(const char *mesg, size_t length);
+request_t request_parse(GBytes *request);
 request_t request_shutdown();
 request_t request_error();
-request_t request_task(const char *payload, size_t len, int id);
-char *request_create(size_t *len, const request_t *request);
+request_t request_task(GBytes *data, int id);
+GBytes *request_create(const request_t *request);
+void request_unref(request_t *request);
 
 // what about length in response_diverge?
 response_t response_parse(const char *response, size_t length);

@@ -1,8 +1,14 @@
 #include "messages.h"
 
-request_t request_parse(const char *mesg, size_t length) {
+//request_t request_parse(const char *mesg, size_t length) {
+request_t request_parse(GBytes *request) {
+    // extract size and pointer from gbytes
+    size_t size;
+    const char *data = g_bytes_get_data(request, &size);
+
+    // create new mpack tree to examine request
     mpack_tree_t msg;
-    mpack_tree_init(&msg, mesg, length);
+    mpack_tree_init(&msg, data, size);
     mpack_node_t root = mpack_tree_root(&msg);
 
     // extract the "type" field from the message
@@ -18,12 +24,13 @@ request_t request_parse(const char *mesg, size_t length) {
         mpack_node_t payload = mpack_node_map_cstr(root, "payload");
         const char *payload_data = mpack_node_data(payload);
         size_t payload_size = mpack_node_data_len(payload);
+        GBytes *payload_bytes = g_bytes_new_static(payload_data, payload_size);
 
         if(mpack_node_error(root) != mpack_ok) {
             goto error;
         }
 
-        return request_task(payload_data, payload_size, id);
+        return request_task(payload_bytes, id);
     } else if(strncmp(type, "shutdown", 8) == 0) {
         return request_shutdown();
     }
@@ -48,24 +55,24 @@ request_t request_error() {
     };
 }
 
-request_t request_task(const char *payload, size_t size, int id) {
+request_t request_task(GBytes *data, int id) {
     return (request_t){
         .type = REQUEST_TASK,
-        .data = g_bytes_new_static(payload, size),
+        .data = data,
         .id = id
     };
 }
 
-char *request_create(size_t *size, const request_t *request) {
+GBytes *request_create(const request_t *request) {
     // we can't create an error message
     if(request->type == REQUEST_ERROR) {
-        *size = 0;
         return NULL;
     }
 
-    char *buffer = NULL;
+    char *buffer;
+    size_t size;
     mpack_writer_t writer;
-    mpack_writer_init_growable(&writer, &buffer, size);
+    mpack_writer_init_growable(&writer, &buffer, &size);
     
     if(request->type == REQUEST_TASK) {
         mpack_start_map(&writer, 3);
@@ -93,11 +100,14 @@ char *request_create(size_t *size, const request_t *request) {
 
     if(mpack_writer_destroy(&writer) != mpack_ok) {
         if(buffer) free(buffer);
-        *size = 0;
         return NULL;
     }
 
-    return buffer;
+    return g_bytes_new_with_free_func(buffer,size, free, buffer);
+}
+
+void request_unref(request_t *request) {
+    g_bytes_unref(request->data);
 }
 
 /*
