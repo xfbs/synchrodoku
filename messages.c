@@ -135,7 +135,13 @@ response_t response_diverge(GList *diverges, int id) {
 }
 
 void response_unref(response_t *response) {
-    // TODO
+    if(response->type == RESPONSE_SOLUTION) {
+        g_bytes_unref(response->data.solution);
+    }
+
+    if(response->type == RESPONSE_DIVERGES) {
+        g_list_free_full(response->data.diverges, g_bytes_unref);
+    }
 }
 
 /*
