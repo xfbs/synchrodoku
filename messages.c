@@ -110,6 +110,34 @@ void request_unref(request_t *request) {
     g_bytes_unref(request->data);
 }
 
+response_t response_error() {
+    return (response_t){
+        .type = RESPONSE_ERROR,
+        .data.solution = NULL,
+        .id = 0
+    };
+}
+
+response_t response_solution(GBytes *solution, int id) {
+    return (response_t){
+        .type = RESPONSE_SOLUTION,
+        .data.solution = solution,
+        .id = id
+    };
+}
+
+response_t response_diverge(GList *diverges, int id) {
+    return (response_t){
+        .type = RESPONSE_DIVERGES,
+        .data.diverges = diverges,
+        .id = id
+    };
+}
+
+void response_unref(response_t *response) {
+    // TODO
+}
+
 /*
 sudoku_status worker_handle_sudoku(sudoku_puzzle_t *in) {
     if(solve_simple(in)) {

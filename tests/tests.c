@@ -37,6 +37,8 @@ TEST(diverge_returns_solved_sudoku);
 TEST(diverge_returns_correct_amount);
 TEST(diverge_returns_correct_sudokus);
 
+/* request_new.c */
+
 /* request_parse.c */
 TEST(parsing_empty_request_yields_error);
 TEST(parsing_malformed_request_yields_error);
@@ -47,6 +49,11 @@ TEST(parsing_task_request_works);
 TEST(request_create_does_not_work_with_error);
 TEST(request_create_works_with_shutdown);
 TEST(request_create_works_with_task);
+
+/* response_new.c */
+TEST(response_error_works);
+TEST(response_solution_works);
+TEST(response_diverge_works);
 
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
@@ -114,6 +121,13 @@ TEST_SUITE(request_create) {
     TEST_SUITE_CLOSURE
 };
 
+TEST_SUITE(response_new) {
+    TEST_ADD(response_error_works),
+    TEST_ADD(response_solution_works),
+    TEST_ADD(response_diverge_works),
+    TEST_SUITE_CLOSURE
+};
+
 /* test suites */
 TEST_SUITES {
     TEST_SUITE_ADD(sudoku_cell),
@@ -124,6 +138,7 @@ TEST_SUITES {
     TEST_SUITE_ADD(solver_diverge),
     TEST_SUITE_ADD(request_parse),
     TEST_SUITE_ADD(request_create),
+    TEST_SUITE_ADD(response_new),
     TEST_SUITES_CLOSURE
 };
 
