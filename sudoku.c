@@ -42,14 +42,14 @@ sudoku_cell_t *sudoku_puzzle_cell(sudoku_puzzle_t *puzzle, int row, int col) {
     return &puzzle->cells[row][col];
 }
 
-const sudoku_cell_t *_sudoku_puzzle_cell(const sudoku_puzzle_t *puzzle, int row, int col) {
+const sudoku_cell_t *sudoku_puzzle_cell_const(const sudoku_puzzle_t *puzzle, int row, int col) {
     return &puzzle->cells[row][col];
 }
 
 bool sudoku_puzzle_solved(const sudoku_puzzle_t *puzzle) {
     for(int row = 0; row < 9; row++) {
         for(int col = 0; col < 9; col++) {
-            if(!sudoku_cell_solved(_sudoku_puzzle_cell(puzzle, row, col))) {
+            if(!sudoku_cell_solved(sudoku_puzzle_cell_const(puzzle, row, col))) {
                 return false;
             }
         }
@@ -61,7 +61,7 @@ bool sudoku_puzzle_solved(const sudoku_puzzle_t *puzzle) {
 bool sudoku_puzzle_solvable(const sudoku_puzzle_t *puzzle) {
     for(int row = 0; row < 9; row++) {
         for(int col = 0; col < 9; col++) {
-            if(!sudoku_cell_solvable(_sudoku_puzzle_cell(puzzle, row, col))) {
+            if(!sudoku_cell_solvable(sudoku_puzzle_cell_const(puzzle, row, col))) {
                 return false;
             }
         }
@@ -80,7 +80,7 @@ sudoku_cell_t sudoku_puzzle_candidates_row(const sudoku_puzzle_t *puzzle, int ro
     // for any cell that has a solution, subtract that
     // from the list of possible solutions
     for(int i = 0; i < 9; i++) {
-        int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, row, i));
+        int solution = sudoku_cell_solution(sudoku_puzzle_cell_const(puzzle, row, i));
 
         if(solution != 0) {
             cell.numbers[solution-1] = false;
@@ -96,7 +96,7 @@ sudoku_cell_t sudoku_puzzle_candidates_col(const sudoku_puzzle_t *puzzle, int co
     // for any cell that has a solution, subtract that
     // from the list of possible solutions
     for(int i = 0; i < 9; i++) {
-        int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, i, col));
+        int solution = sudoku_cell_solution(sudoku_puzzle_cell_const(puzzle, i, col));
 
         if(solution != 0) {
             cell.numbers[solution-1] = false;
@@ -115,7 +115,7 @@ sudoku_cell_t sudoku_puzzle_candidates_square(const sudoku_puzzle_t *puzzle, int
 
     for(int r = 0; r < 3; r++) {
         for(int c = 0; c < 3; c++) {
-            int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, row+r, col+c));
+            int solution = sudoku_cell_solution(sudoku_puzzle_cell_const(puzzle, row+r, col+c));
 
             if(solution != 0) {
                 cell.numbers[solution-1] = false;
@@ -145,14 +145,14 @@ json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle) {
         json_t *jrow = json_array();
 
         for(int col = 0; col < 9; col++) {
-            int solution = sudoku_cell_solution(_sudoku_puzzle_cell(puzzle, row, col));
+            int solution = sudoku_cell_solution(sudoku_puzzle_cell_const(puzzle, row, col));
 
             if(solution != 0) {
                 // TODO: figure out if we should use this function
                 // or array_append_new (incref?)
                 json_array_append(jrow, json_integer(solution));
             } else {
-                const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, row, col);
+                const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, row, col);
                 json_t *solutions = json_array();
 
                 for(int n = 0; n < 9; n++) {
@@ -250,7 +250,7 @@ void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle)
 
     for(int r = 0; r < 9; r++) {
         for(int c = 0; c < 9; c++) {
-            const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, r, c);
+            const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, r, c);
 
             packed[pos] = 0;
 
@@ -269,7 +269,7 @@ void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle)
         for(int c = 0; c < 8; c++) {
             packed[pos] <<= 1;
 
-            const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, r, c);
+            const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, r, c);
 
             packed[pos] += cell->numbers[8] ? 1 : 0;
         }
@@ -282,13 +282,13 @@ void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle)
     for(int r = 0; r < 8; r++) {
         packed[pos] <<= 1;
 
-        const sudoku_cell_t *cell = _sudoku_puzzle_cell(puzzle, r, 8);
+        const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, r, 8);
 
         packed[pos] += cell->numbers[8] ? 1 : 0;
     }
 
     pos++;
-    packed[pos] = _sudoku_puzzle_cell(puzzle, 8, 8)->numbers[8] ? 255 : 0;
+    packed[pos] = sudoku_puzzle_cell_const(puzzle, 8, 8)->numbers[8] ? 255 : 0;
 
     assert(pos == 91);
 }

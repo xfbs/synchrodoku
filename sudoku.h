@@ -60,6 +60,10 @@ sudoku_puzzle_t sudoku_puzzle_new(int numbers[9][9]);
 // column of the sudoku
 sudoku_cell_t *sudoku_puzzle_cell(sudoku_puzzle_t *puzzle, int row, int col);
 
+// returns a const pointer to the cell at the given 
+// row and column of the sudoku
+const sudoku_cell_t *sudoku_puzzle_cell_const(const sudoku_puzzle_t *puzzle, int row, int col);
+
 // returns true if all cells in the sudoku have a
 // solution
 bool sudoku_puzzle_solved(const sudoku_puzzle_t *puzzle);
