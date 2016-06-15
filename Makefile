@@ -9,7 +9,8 @@ PKGLIBS = glib-2.0 jansson
 INCLUDE = /usr/local/include ./mpack .
 LIBSDIR = /usr/local/lib ./mpack ./cu
 DEPS = mpack/libmpack.a
-TEST_DEPS = cu/libcu.a
+TESTLIB = cu/libcu.a
+MPACKLIB = mpack/libmpack.a
 
 CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
@@ -26,13 +27,13 @@ tests: $(TARGET) $(TEST_DEPS) ./tests/output
 
 FORCE:
 
-./tests/run_tests: $(patsubst %.c,%.o,$(wildcard ./tests/*.c))
+./tests/run_tests: $(patsubst %.c,%.o,$(wildcard ./tests/*.c)) $(TARGET) $(TESTLIB) $(MPACKLIB)
 	$(CC) -o $@ $^ $(LDFLAGS) -lcu -L. -lsynchrodoku
 
-mpack/libmpack.a: $(wildcard mpack/*.h) $(wildcard mpack/*.c)
+$(MPACKLIB): $(wildcard mpack/*.h) $(wildcard mpack/*.c)
 	cd mpack && make
 
-cu/libcu.a: $(wildcard cu/*.h) $(wildcard cu/*.c)
+$(TESTLIB): $(wildcard cu/*.h) $(wildcard cu/*.c)
 	cd cu && make
 
 clean:
