@@ -2,10 +2,9 @@
 
 TEST(request_create_does_not_work_with_error) {
     request_t request = request_error();
-
     GBytes *data = request_create(&request);
-
     assertEquals(data, NULL);
+    request_unref(&request);
 }
 
 TEST(request_create_works_with_shutdown) {
@@ -19,6 +18,8 @@ TEST(request_create_works_with_shutdown) {
     assertEquals(parsed.type, REQUEST_SHUTDOWN);
 
     g_bytes_unref(data);
+    request_unref(&request);
+    request_unref(&parsed);
 }
 
 TEST(request_create_works_with_task) {
@@ -46,6 +47,7 @@ TEST(request_create_works_with_task) {
     assertEquals(size, payload_size);
     assertEquals(strncmp(parsed_payload, payload, payload_size), 0);
 
+    g_bytes_unref(payload_bytes);
     request_unref(&parsed);
     request_unref(&request);
 }

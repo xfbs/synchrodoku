@@ -21,7 +21,7 @@ request_t request_parse(GBytes *request) {
 
     if(strncmp(type, "task", 4) == 0) {
         int id = mpack_node_i32(mpack_node_map_cstr(root, "id"));
-        mpack_node_t payload = mpack_node_map_cstr(root, "payload");
+        mpack_node_t payload = mpack_node_map_cstr(root, "data");
         const char *payload_data = mpack_node_data(payload);
         size_t payload_size = mpack_node_data_len(payload);
         GBytes *payload_bytes = g_bytes_new_static(payload_data, payload_size);
@@ -31,7 +31,7 @@ request_t request_parse(GBytes *request) {
         }
 
         return request_task(payload_bytes, id);
-    } else if(strncmp(type, "shutdown", 8) == 0) {
+    } else if(strncmp(type, "stop", 4) == 0) {
         return request_shutdown();
     }
 
@@ -85,7 +85,7 @@ GBytes *request_create(const request_t *request) {
 
         size_t data_len;
         const char *data = g_bytes_get_data(request->data, &data_len);
-        mpack_write_cstr(&writer, "payload");
+        mpack_write_cstr(&writer, "data");
         mpack_write_bin(&writer, data, data_len);
 
         mpack_finish_map(&writer);
@@ -93,7 +93,7 @@ GBytes *request_create(const request_t *request) {
         mpack_start_map(&writer, 1);
 
         mpack_write_cstr(&writer, "type");
-        mpack_write_cstr(&writer, "shutdown");
+        mpack_write_cstr(&writer, "stop");
 
         mpack_finish_map(&writer);
     } 
