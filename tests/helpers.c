@@ -3,8 +3,8 @@
 bool sudoku_puzzle_equals_strict(const sudoku_puzzle_t *a, const sudoku_puzzle_t *b) {
     for(int r = 0; r < 9; r++) {
         for(int c = 0; c < 9; c++) {
-            sudoku_cell_t *a_cell = sudoku_puzzle_cell(a, r, c);
-            sudoku_cell_t *b_cell = sudoku_puzzle_cell(b, r, c);
+            const sudoku_cell_t *a_cell = sudoku_puzzle_cell_const(a, r, c);
+            const sudoku_cell_t *b_cell = sudoku_puzzle_cell_const(b, r, c);
 
             if(!sudoku_cell_equals_strict(a_cell, b_cell)) {
                 return false;
