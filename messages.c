@@ -107,7 +107,9 @@ GBytes *request_create(const request_t *request) {
 }
 
 void request_unref(request_t *request) {
-    g_bytes_unref(request->data);
+    if(request->type == REQUEST_TASK) {
+        g_bytes_unref(request->data);
+    }
 }
 
 response_t response_error() {
