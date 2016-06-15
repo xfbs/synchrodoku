@@ -1,6 +1,8 @@
 #include "worker.h"
 #define BUFSIZE 1024
 
+void *_worker_zmq_context;
+
 typedef enum {
     SUDOKU_SOLVED,
     SUDOKU_DIVERGE
@@ -34,6 +36,10 @@ void worker_response_solved(char *buffer, int *len, sudoku_puzzle_t *solution, i
 
 void worker_response_diverge(char *buffer, int *len, GList *diverges, int task_id);
 
+void worker_set_zmq_ctx(void *context) {
+    _worker_zmq_context = context;
+}
+
 void *
 worker_loop(void *opts)
 {
@@ -44,11 +50,11 @@ worker_loop(void *opts)
     // this is the socket over which the 
     // worker gets tasks sent to by the
     // manager
-    void *tasks = zmq_socket(context, ZMQ_PULL);
+    void *tasks = zmq_socket(_worker_zmq_context, ZMQ_PULL);
 
     // this is the socket it uses to
     // reply back to the manager
-    void *responses = zmq_socket(context, ZMQ_PUSH);
+    void *responses = zmq_socket(_worker_zmq_context, ZMQ_PUSH);
 
 #ifdef DEBUG
     printf("[worker #%i] started up\n", worker_id);

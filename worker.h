@@ -13,8 +13,7 @@
 #include "sudoku.h"
 #include "solver.h"
 
-void *context;
-
 void *worker_loop(void *opts);
 
+void worker_set_zmq_ctx(void *context);
 #endif
