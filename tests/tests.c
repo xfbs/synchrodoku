@@ -41,6 +41,7 @@ TEST(diverge_returns_correct_sudokus);
 TEST(parsing_empty_request_yields_error);
 TEST(parsing_malformed_request_yields_error);
 TEST(parsing_shutdown_request_works);
+TEST(parsing_task_request_works);
 
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
@@ -97,6 +98,7 @@ TEST_SUITE(request_parse) {
     TEST_ADD(parsing_empty_request_yields_error),
     TEST_ADD(parsing_malformed_request_yields_error),
     TEST_ADD(parsing_shutdown_request_works),
+    TEST_ADD(parsing_task_request_works),
     TEST_SUITE_CLOSURE
 };
 
