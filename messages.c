@@ -142,7 +142,7 @@ void response_unref(response_t *response) {
     }
 
     if(response->type == RESPONSE_DIVERGES) {
-        g_list_free_full(response->data.diverges, g_bytes_unref);
+        g_list_free_full(response->data.diverges, (void (*)(void *))g_bytes_unref);
     }
 }
 
