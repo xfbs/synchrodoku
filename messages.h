@@ -26,15 +26,16 @@ typedef struct {
 } request_t;
     
 typedef enum {
-    TASK_SOLVED,
-    TASK_DIVERGE
+    RESPONSE_SOLVED,
+    RESPONSE_DIVERGE,
+    RESPONSE_ERROR
 } response_type;
 
 typedef struct {
     response_type type;
     union {
         GList *diverges;
-        char *solution;
+        GBytes *solution;
     } response;
     int id;
 } response_t;
@@ -46,9 +47,10 @@ request_t request_task(const char *payload, size_t len, int id);
 char *request_create(size_t *len, const request_t *request);
 
 // what about length in response_diverge?
-response_t response_parse(char *response, size_t length);
-response_t response_solution(char *solution, size_t length, int id);
+response_t response_parse(const char *response, size_t length);
+response_t response_error();
+response_t response_solution(const char *solution, size_t length, int id);
 response_t response_diverge(GList *diverges, int id);
-int response_create(char **buffer, int *len, const response_t *response);
+char *response_create(size_t *len, const response_t *response);
 
 #endif
