@@ -37,11 +37,16 @@ TEST(diverge_returns_solved_sudoku);
 TEST(diverge_returns_correct_amount);
 TEST(diverge_returns_correct_sudokus);
 
-/* requests_parse.c */
+/* request_parse.c */
 TEST(parsing_empty_request_yields_error);
 TEST(parsing_malformed_request_yields_error);
 TEST(parsing_shutdown_request_works);
 TEST(parsing_task_request_works);
+
+/* request_create.c */
+TEST(request_create_does_not_work_with_error);
+TEST(request_create_works_with_shutdown);
+TEST(request_create_works_with_task);
 
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
@@ -102,6 +107,13 @@ TEST_SUITE(request_parse) {
     TEST_SUITE_CLOSURE
 };
 
+TEST_SUITE(request_create) {
+    TEST_ADD(request_create_does_not_work_with_error),
+    TEST_ADD(request_create_works_with_shutdown),
+    TEST_ADD(request_create_works_with_task),
+    TEST_SUITE_CLOSURE
+};
+
 /* test suites */
 TEST_SUITES {
     TEST_SUITE_ADD(sudoku_cell),
@@ -111,8 +123,10 @@ TEST_SUITES {
     TEST_SUITE_ADD(solver_solve),
     TEST_SUITE_ADD(solver_diverge),
     TEST_SUITE_ADD(request_parse),
+    TEST_SUITE_ADD(request_create),
     TEST_SUITES_CLOSURE
 };
+
 int main(int argc, char *argv[])
 {
     CU_SET_NAME("synchrodoku");
