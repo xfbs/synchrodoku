@@ -37,7 +37,10 @@ TEST(parsing_task_request_works) {
     request_t request = request_parse(data, data_len);
     assertEquals(request.type, REQUEST_TASK);
     assertEquals(request.id, 5);
-    assertEquals(request.size, 4);
-    assertEquals(strncmp(request.payload, "asdf", 4), 0);
+    
+    size_t payload_size;
+    const char *payload = g_bytes_get_data(request.data, &payload_size);
+    assertEquals(payload_size, 4);
+    assertEquals(strncmp(payload, "asdf", 4), 0);
 }
 

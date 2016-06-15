@@ -42,7 +42,9 @@ TEST(request_create_works_with_task) {
     request_t parsed = request_parse(data, size);
     assertEquals(parsed.type, REQUEST_TASK);
     assertEquals(parsed.id, id);
-    assertEquals(parsed.size, payload_size);
-    assertEquals(strncmp(parsed.payload, payload, payload_size), 0);
+
+    const char *parsed_payload = g_bytes_get_data(parsed.data, &size);
+    assertEquals(size, payload_size);
+    assertEquals(strncmp(parsed_payload, payload, payload_size), 0);
     free(data);
 }

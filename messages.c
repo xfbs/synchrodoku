@@ -35,8 +35,7 @@ error:
 request_t request_shutdown() {
     return (request_t){
         .type = REQUEST_SHUTDOWN,
-        .payload = NULL,
-        .size = 0,
+        .data = NULL,
         .id = 0
     };
 }
@@ -44,8 +43,7 @@ request_t request_shutdown() {
 request_t request_error() {
     return (request_t){
         .type = REQUEST_ERROR,
-        .payload = NULL,
-        .size = 0,
+        .data = NULL,
         .id = 0
     };
 }
@@ -53,8 +51,7 @@ request_t request_error() {
 request_t request_task(const char *payload, size_t size, int id) {
     return (request_t){
         .type = REQUEST_TASK,
-        .payload = payload,
-        .size = size,
+        .data = g_bytes_new_static(payload, size),
         .id = id
     };
 }
@@ -72,17 +69,25 @@ char *request_create(size_t *size, const request_t *request) {
     
     if(request->type == REQUEST_TASK) {
         mpack_start_map(&writer, 3);
+
         mpack_write_cstr(&writer, "type");
         mpack_write_cstr(&writer, "task");
+
         mpack_write_cstr(&writer, "id");
         mpack_write_i32(&writer, request->id);
+
+        size_t data_len;
+        const char *data = g_bytes_get_data(request->data, &data_len);
         mpack_write_cstr(&writer, "payload");
-        mpack_write_bin(&writer, request->payload, request->size);
+        mpack_write_bin(&writer, data, data_len);
+
         mpack_finish_map(&writer);
     } else if(request->type == REQUEST_SHUTDOWN) {
         mpack_start_map(&writer, 1);
+
         mpack_write_cstr(&writer, "type");
         mpack_write_cstr(&writer, "shutdown");
+
         mpack_finish_map(&writer);
     } 
 

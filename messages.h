@@ -20,8 +20,11 @@ typedef enum {
 
 typedef struct {
     request_type type;
+    /*
     const char *payload;
     size_t size;
+    */
+    GBytes *data;
     int id;
 } request_t;
     
