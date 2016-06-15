@@ -1,7 +1,7 @@
 CC = clang
 RM = rm -rf
 CFLAGS = -g -Wall -pedantic -std=gnu99
-FILES = sudoku solver worker messages
+FILES = sudoku solver messages
 TARGET = libsynchrodoku.a
 HEADERS = $(FILES:%=%.h)
 LIBS = pthread czmq zmq
