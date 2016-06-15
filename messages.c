@@ -1,6 +1,6 @@
 #include "messages.h"
 
-request_t request_parse(char *mesg, size_t length) {
+request_t request_parse(const char *mesg, size_t length) {
     mpack_tree_t msg;
     mpack_tree_init(&msg, mesg, length);
     mpack_node_t root = mpack_tree_root(&msg);
@@ -68,7 +68,7 @@ char *request_create(size_t *size, const request_t *request) {
 
     char *buffer = NULL;
     mpack_writer_t writer;
-    mpack_writer_init_growable(&writer, &buffer, &size);
+    mpack_writer_init_growable(&writer, &buffer, size);
     
     if(request->type == REQUEST_TASK) {
         mpack_start_map(&writer, 3);

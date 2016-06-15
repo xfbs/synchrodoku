@@ -35,11 +35,11 @@ typedef struct {
     union {
         GList *diverges;
         char *solution;
-    };
+    } response;
     int id;
 } response_t;
 
-request_t request_parse(char *mesg, size_t length);
+request_t request_parse(const char *mesg, size_t length);
 request_t request_shutdown();
 request_t request_error();
 request_t request_task(const char *payload, size_t len, int id);
