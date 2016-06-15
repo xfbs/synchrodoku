@@ -4,13 +4,13 @@ CFLAGS = -g -Wall -pedantic -std=gnu99
 FILES = sudoku solver worker messages
 TARGET = libsynchrodoku.a
 HEADERS = $(FILES:%=%.h)
-LIBS = pthread czmq zmq mpack
+LIBS = pthread czmq zmq
 PKGLIBS = glib-2.0 jansson
 INCLUDE = /usr/local/include ./mpack .
-LIBSDIR = /usr/local/lib ./mpack ./cu
-DEPS = mpack/libmpack.a
+LIBSDIR = /usr/local/lib
 TESTLIB = cu/libcu.a
 MPACKLIB = mpack/libmpack.a
+DEPS = $(MPACKLIB)
 
 CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
@@ -28,7 +28,7 @@ tests: $(TARGET) $(TEST_DEPS) ./tests/output
 FORCE:
 
 ./tests/run_tests: $(patsubst %.c,%.o,$(wildcard ./tests/*.c)) $(TARGET) $(TESTLIB) $(MPACKLIB)
-	$(CC) -o $@ $^ $(LDFLAGS) -lcu -L. -lsynchrodoku
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(MPACKLIB): $(wildcard mpack/*.h) $(wildcard mpack/*.c)
 	cd mpack && make
