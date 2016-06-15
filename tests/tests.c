@@ -38,6 +38,9 @@ TEST(diverge_returns_correct_amount);
 TEST(diverge_returns_correct_sudokus);
 
 /* request_new.c */
+TEST(request_error_works);
+TEST(request_shutdown_works);
+TEST(request_task_works);
 
 /* request_parse.c */
 TEST(parsing_empty_request_yields_error);
@@ -106,6 +109,13 @@ TEST_SUITE(solver_diverge) {
     TEST_SUITE_CLOSURE
 };
 
+TEST_SUITE(request_new) {
+    TEST_ADD(request_error_works),
+    TEST_ADD(request_shutdown_works),
+    TEST_ADD(request_task_works),
+    TEST_SUITE_CLOSURE
+};
+
 TEST_SUITE(request_parse) {
     TEST_ADD(parsing_empty_request_yields_error),
     TEST_ADD(parsing_malformed_request_yields_error),
@@ -136,6 +146,7 @@ TEST_SUITES {
     TEST_SUITE_ADD(sudoku_json),
     TEST_SUITE_ADD(solver_solve),
     TEST_SUITE_ADD(solver_diverge),
+    TEST_SUITE_ADD(request_new),
     TEST_SUITE_ADD(request_parse),
     TEST_SUITE_ADD(request_create),
     TEST_SUITE_ADD(response_new),
