@@ -64,6 +64,10 @@ TEST(parsing_malformed_response_yields_error);
 TEST(parsing_solution_response_works);
 TEST(parsing_diverge_response_works);
 
+/* response_create.c */
+TEST(response_create_does_not_work_with_error);
+TEST(response_create_works_with_solution);
+
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
     TEST_ADD(cell_solved_works),
@@ -152,6 +156,11 @@ TEST_SUITE(response_parse) {
     TEST_SUITE_CLOSURE
 };
 
+TEST_SUITE(response_create) {
+    TEST_ADD(response_create_does_not_work_with_error),
+    TEST_ADD(response_create_works_with_solution),
+    TEST_SUITE_CLOSURE
+};
 
 /* test suites */
 TEST_SUITES {
@@ -166,6 +175,7 @@ TEST_SUITES {
     TEST_SUITE_ADD(request_create),
     TEST_SUITE_ADD(response_new),
     TEST_SUITE_ADD(response_parse),
+    TEST_SUITE_ADD(response_create),
     TEST_SUITES_CLOSURE
 };
 
