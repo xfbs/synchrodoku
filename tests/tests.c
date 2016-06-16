@@ -60,6 +60,8 @@ TEST(response_diverge_works);
 
 /* response_parse.c */
 TEST(parsing_empty_response_yields_error);
+TEST(parsing_malformed_response_yields_error);
+TEST(parsing_solution_response_works);
 
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
@@ -143,6 +145,8 @@ TEST_SUITE(response_new) {
 
 TEST_SUITE(response_parse) {
     TEST_ADD(parsing_empty_response_yields_error),
+    TEST_ADD(parsing_malformed_response_yields_error),
+    TEST_ADD(parsing_solution_response_works),
     TEST_SUITE_CLOSURE
 };
 
