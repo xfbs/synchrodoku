@@ -3,7 +3,9 @@
 TEST(parsing_empty_request_yields_error) {
     int i = 3;
     GBytes *req = g_bytes_new_static((const char *)&i, 0);
+
     request_t request = request_parse(req);
+
     assertEquals(request.type, REQUEST_ERROR);
     request_unref(&request);
 }
@@ -11,9 +13,13 @@ TEST(parsing_empty_request_yields_error) {
 TEST(parsing_malformed_request_yields_error) {
     char data[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     GBytes *req = g_bytes_new_static(data, 10);
+
     request_t request = request_parse(req);
+
     assertEquals(request.type, REQUEST_ERROR);
+
     request_unref(&request);
+    g_bytes_unref(req);
 }
 
 TEST(parsing_shutdown_request_works) {
@@ -27,12 +33,12 @@ TEST(parsing_shutdown_request_works) {
     assertEquals(request.type, REQUEST_SHUTDOWN);
 
     request_unref(&request);
+    g_bytes_unref(bytes);
 }
 
 TEST(parsing_task_request_works) {
-    /* generated from ruby with:
-     * {"type" => "task", "id" => 5, "payload" => "asdf"}.to_msgpack.bytes.to_a
-     */
+    // generated from ruby with:
+    // {"type" => "task", "id" => 5, "payload" => "asdf"}.to_msgpack.bytes.to_a
     char data[] = {
         131, 164, 116, 121, 112, 101, 164, 116, 97, 
         115, 107, 162, 105, 100, 5, 164, 100,
@@ -50,5 +56,6 @@ TEST(parsing_task_request_works) {
     assertEquals(strncmp(payload, "asdf", 4), 0);
 
     request_unref(&request);
+    g_bytes_unref(bytes);
 }
 
