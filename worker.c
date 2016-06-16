@@ -2,7 +2,7 @@
 
 int ret;
 
-GBytes *worker_handle_request(GBytes *in);
+response_t worker_handle_request(worker_t *options, request_t *request);
 
 void *worker_loop(worker_t *options) {
     void *requests = zmq_socket(options->zmq_ctx, ZMQ_PULL);
@@ -38,8 +38,15 @@ void *worker_loop(worker_t *options) {
         }
 
         GBytes *in_bytes = g_byte_array_free_to_bytes(in);
-        GBytes *out = worker_handle_request(options, in_bytes);
-        g_bytes_unref(in_bytes);
+        request_t request = request_parse(in_bytes);
+
+        if(request.type == REQUEST_SHUTDOWN) {
+            shutdown = true;
+            continue;
+        }
+
+        response_t response = options->handle_request(&request);
+        GBytes *out = response_create(&response);
 
         size_t len;
         const char *data = g_bytes_get_data(out, &len);
@@ -48,6 +55,8 @@ void *worker_loop(worker_t *options) {
         assert(ret >= 0);
 
         g_bytes_unref(out);
+        request_unref(&request);
+        response_unref(&response);
     }
 
     // flush incoming work?

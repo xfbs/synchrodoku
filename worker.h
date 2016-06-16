@@ -13,16 +13,12 @@
 #include "solver.h"
 #include "messages.h"
 
-typedef bool solve_function_t(void *);
-typedef GList *diverge_function_t(void *);
+typedef response_t handle_request_func(request_t *request);
 
 typedef struct {
     pthread thread;
     int id;
-    solve_function solver;
-    diverge_function diverger;
-    const char *reqsock;
-    const char *respsock;
+    handle_request_func handle_request;
     void *zmq_ctx;
 } worker_t;
 
