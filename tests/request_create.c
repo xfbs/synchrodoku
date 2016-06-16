@@ -47,7 +47,7 @@ TEST(request_create_works_with_task) {
     assertEquals(size, payload_size);
     assertEquals(strncmp(parsed_payload, payload, payload_size), 0);
 
-    g_bytes_unref(payload_bytes);
+    g_bytes_unref(data);
     request_unref(&parsed);
     request_unref(&request);
 }
