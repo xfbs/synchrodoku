@@ -2,6 +2,7 @@
 #define SUDOKU_H
 #include <stdbool.h>
 #include <jansson.h>
+#include <glib.h>
 #define SUDOKU_PACKED_SIZE 92
 
 typedef struct sudoku_cell {
@@ -99,5 +100,9 @@ void sudoku_puzzle_pack(unsigned char out[SUDOKU_PACKED_SIZE], const sudoku_puzz
 
 // read a sudoku from a binary representation
 sudoku_puzzle_t sudoku_puzzle_unpack(const unsigned char packed[SUDOKU_PACKED_SIZE]);
+
+bool solve_simple(sudoku_puzzle_t *puzzle);
+
+GList *solve_diverge(sudoku_puzzle_t *puzzle);
 
 #endif
