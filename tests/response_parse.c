@@ -43,39 +43,34 @@ TEST(parsing_solution_response_works) {
     response_unref(&response);
 }
 
-/*
-TEST(parsing_shutdown_request_works) {
+TEST(parsing_diverge_response_works) {
     // generated from ruby with:
-    // {"type" => "stop"}.to_msgpack.bytes.to_a
-    char data[] = {129, 164, 116, 121, 112, 101, 164, 115, 116, 111, 112};
-    size_t data_len = 11;
-    GBytes *bytes = g_bytes_new_static(data, data_len);
-
-    request_t request = request_parse(bytes);
-    assertEquals(request.type, REQUEST_SHUTDOWN);
-
-    request_unref(&request);
-}
-
-TEST(parsing_task_request_works) {
-    // generated from ruby with:
-    // {"type" => "task", "id" => 5, "payload" => "asdf"}.to_msgpack.bytes.to_a
+    // {"done" => false, "divs" => ["asdf", "ghjk"], "id" => 432}.to_msgpack.bytes.to_a
     char data[] = {
-        131, 164, 116, 121, 112, 101, 164, 116, 97, 
-        115, 107, 162, 105, 100, 5, 164, 100,
-        97, 116, 97, 164, 97, 115, 100, 102};
-    size_t data_len = 25;
+        131, 164, 100, 111, 110, 101, 194, 164, 
+        100, 105, 118, 115, 146, 164,  97, 115, 
+        100, 102, 164, 103, 104, 106, 107, 162, 
+        105, 100, 205,   1, 176};
+    size_t data_len = 29;
+
     GBytes *bytes = g_bytes_new_static(data, data_len);
 
-    request_t request = request_parse(bytes);
-    assertEquals(request.type, REQUEST_TASK);
-    assertEquals(request.id, 5);
-    
-    size_t payload_size;
-    const char *payload = g_bytes_get_data(request.data, &payload_size);
-    assertEquals(payload_size, 4);
-    assertEquals(strncmp(payload, "asdf", 4), 0);
+    response_t response = response_parse(bytes);
+    assertEquals(response.type, RESPONSE_DIVERGES);
+    assertEquals(response.id, 432);
 
-    request_unref(&request);
+    const char *payload;
+
+    GBytes *first = g_list_nth_data(response.data.diverges, 0);
+    payload = g_bytes_get_data(first, &data_len);
+    assertEquals(data_len, 4);
+    assertEquals(strncmp(payload, "asdf", data_len), 0);
+
+    GBytes *second = g_list_nth_data(response.data.diverges, 1);
+    payload = g_bytes_get_data(second, &data_len);
+    assertEquals(data_len, 4);
+    assertEquals(strncmp(payload, "ghjk", data_len), 0);
+
+    g_bytes_unref(bytes);
+    response_unref(&response);
 }
-*/
