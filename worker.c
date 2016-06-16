@@ -1,45 +1,64 @@
 #include "worker.h"
-#define BUFSIZE 1024
 
-void *_worker_zmq_context;
+int ret;
 
-typedef enum {
-    SUDOKU_SOLVED,
-    SUDOKU_DIVERGE
-} sudoku_status_type;
+GBytes *worker_handle_request(GBytes *in);
 
-typedef enum {
-    MESG_SHUTDOWN,
-    MESG_TASK,
-    MESG_ERROR,
-} worker_mesg_type;
+void *worker_loop(worker_t *options) {
+    void *requests = zmq_socket(options->zmq_ctx, ZMQ_PULL);
+    void *responses = zmq_socket(options->zmq_ctx, ZMQ_PUSH);
 
-typedef struct {
-    worker_mesg_type type;
-    sudoku_puzzle_t sudoku;
-    int id;
-} worker_task;
-    
-typedef struct {
-    sudoku_status_type type;
-    union {
-        GList *diverges;
-        sudoku_puzzle_t *solution;
-    };
-} sudoku_status;
+    // connect to sockets
+    ret = zmq_connect(requests, options->reqsock);
+    assert(ret == 0);
+    ret = zmq_connect(responses, options->respsock);
+    assert(ret == 0);
 
-worker_task worker_handle_mesg(char *mesg, int length);
+    bool shutdown = false;
+    const int initial_bufsize = 1024;
 
-sudoku_status worker_handle_sudoku(sudoku_puzzle_t *in);
+    while(!shutdown) {
+        GByteArray *in = g_byte_array_new();
 
-void worker_response_solved(char *buffer, int *len, sudoku_puzzle_t *solution, int task_id);
+        in = g_byte_array_set_size(in, initial_bufsize);
 
-void worker_response_diverge(char *buffer, int *len, GList *diverges, int task_id);
+        // recieve a message, blocking
+        ret = zmq_recv(requests, in->data, in->len, 0);
 
-void worker_set_zmq_ctx(void *context) {
-    _worker_zmq_context = context;
+        // if there was an error, try again
+        if(ret < 0) {
+            continue;
+        }
+
+        // if the message was too big, recieve the
+        // rest now
+        if(ret > in->len) {
+            in = g_byte_array_set_size(in, ret);
+            zmq_recv(requests, in->data+initial_bufsize, in->len-initial_bufsize, 0);
+        }
+
+        GBytes *in_bytes = g_byte_array_free_to_bytes(in);
+        GBytes *out = worker_handle_request(options, in_bytes);
+        g_bytes_unref(in_bytes);
+
+        size_t len;
+        const char *data = g_bytes_get_data(out, &len);
+
+        ret = zmq_send(responses, data, len, ZMQ_DONTWAIT);
+        assert(ret >= 0);
+
+        g_bytes_unref(out);
+    }
+
+    // flush incoming work?
+
+    zmq_close(requests);
+    zmq_close(responses);
+
+    return NULL;
 }
 
+/*
 void *
 worker_loop(void *opts)
 {
@@ -163,130 +182,4 @@ bailout:
     return NULL;
 }
 
-worker_task worker_handle_mesg(char *mesg, int length) {
-    mpack_tree_t msg;
-    mpack_tree_init(&msg, mesg, length);
-    mpack_node_t root = mpack_tree_root(&msg);
-
-    const char *type = mpack_node_str(mpack_node_map_cstr(root, "type"));
-
-    if(mpack_node_error(root) != mpack_ok) {
-        goto error;
-    }
-
-    if(strncmp(type, "shutdown", 8) == 0) {
-        return (worker_task){.type = MESG_SHUTDOWN};
-    }
-
-    if(strncmp(type, "sudoku", 6) != 0) {
-        goto error;
-    }
-
-    int id = mpack_node_i32(mpack_node_map_cstr(root, "id"));
-    mpack_node_t sudoku = mpack_node_map_cstr(root, "sudoku");
-    const char *sudoku_packed = mpack_node_str(sudoku);
-
-    // FIXME hardcoded size of packed sudoku
-    if(mpack_node_strlen(sudoku) < 92 || mpack_node_error(root) != mpack_ok) {
-        goto error;
-    }
-
-    return (worker_task){
-        .type = MESG_TASK,
-        .sudoku = sudoku_puzzle_unpack(sudoku_packed),
-        .id = id
-    };
-error:
-    return (worker_task){.type = MESG_ERROR};
-}
-
-sudoku_status worker_handle_sudoku(sudoku_puzzle_t *in) {
-    if(solve_simple(in)) {
-        return (sudoku_status){
-            .type = SUDOKU_SOLVED,
-            .solution = in
-        };
-    } else {
-        return (sudoku_status){
-            .type = SUDOKU_DIVERGE,
-            .diverges = solve_diverge(in)
-        };
-    }
-}
-
-void worker_response_solved(char *buffer, int *len, sudoku_puzzle_t *solution, int task_id) {
-    // pack the solution into char array
-    // FIXME: magic constant 92
-    unsigned char packed[92];
-    sudoku_puzzle_pack(packed, solution);
-
-    // write to mpack format
-    mpack_writer_t writer;
-    mpack_writer_init(&writer, buffer, BUFSIZE);
-    
-    mpack_start_map(&writer, 3);
-
-    // marks this as solved
-    mpack_write_cstr(&writer, "solved");
-    mpack_write_bool(&writer, true);
-
-    // adds the solution sudoku
-    // FIXME magic constant 92
-    mpack_write_cstr(&writer, "solution");
-    mpack_write_str(&writer, (char*) packed, 92);
-
-    // adds the id of the sudoku
-    mpack_write_cstr(&writer, "id");
-    mpack_write_i32(&writer, task_id);
-
-    mpack_finish_map(&writer);
-
-    // write the length of the buffer
-    *len = mpack_writer_buffer_used(&writer);
-
-    if(mpack_writer_destroy(&writer) != mpack_ok) {
-        fprintf(stderr, "an error occured while encoding the data");
-    }
-}
-
-void worker_response_diverge(char *buffer, int *len, GList *diverges, int task_id) {
-    // write to mpack format
-    mpack_writer_t writer;
-    mpack_writer_init(&writer, buffer, BUFSIZE);
-    
-    mpack_start_map(&writer, 3);
-
-    // marks this as unsolved
-    mpack_write_cstr(&writer, "solved");
-    mpack_write_bool(&writer, false);
-
-    // adds each divergin sudoku to response
-    mpack_write_cstr(&writer, "diverges");
-    mpack_start_array(&writer, g_list_length(diverges));
-    for(GList *iter = diverges; iter != NULL; iter = iter->next) {
-        // get current sudoku
-        sudoku_puzzle_t *sudoku = iter->data;
-
-        // pack the solution into char array
-        // FIXME: magic constant 92
-        unsigned char packed[92];
-        sudoku_puzzle_pack(packed, sudoku);
-
-        mpack_write_str(&writer, (char*) packed, 92);
-    }
-
-    mpack_finish_array(&writer);
-
-    // adds the id of the divering sudoku
-    mpack_write_cstr(&writer, "id");
-    mpack_write_i32(&writer, task_id);
-
-    mpack_finish_map(&writer);
-
-    // write the length of the buffer
-    *len = mpack_writer_buffer_used(&writer);
-
-    if(mpack_writer_destroy(&writer) != mpack_ok) {
-        fprintf(stderr, "an error occured while encoding the data");
-    }
-}
+*/
