@@ -67,6 +67,7 @@ TEST(parsing_diverge_response_works);
 /* response_create.c */
 TEST(response_create_does_not_work_with_error);
 TEST(response_create_works_with_solution);
+TEST(response_create_works_with_diverge);
 
 /* sudoku test suites */
 TEST_SUITE(sudoku_cell) {
@@ -159,6 +160,7 @@ TEST_SUITE(response_parse) {
 TEST_SUITE(response_create) {
     TEST_ADD(response_create_does_not_work_with_error),
     TEST_ADD(response_create_works_with_solution),
+    TEST_ADD(response_create_works_with_diverge),
     TEST_SUITE_CLOSURE
 };
 
