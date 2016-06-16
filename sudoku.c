@@ -406,7 +406,7 @@ sudoku_puzzle_t sudoku_puzzle_new(int numbers[9][9]) {
     return puzzle;
 }
 
-bool solve_simple(sudoku_puzzle_t *puzzle) {
+bool sudoku_solve_simple(sudoku_puzzle_t *puzzle) {
     bool changed;
 
     do {
@@ -451,7 +451,7 @@ bool solve_simple(sudoku_puzzle_t *puzzle) {
     return sudoku_puzzle_solved(puzzle);
 }
 
-GList *solve_diverge(sudoku_puzzle_t *puzzle) {
+GList *sudoku_solve_diverge(sudoku_puzzle_t *puzzle) {
     if(!sudoku_puzzle_solvable(puzzle)) {
         return NULL;
     }

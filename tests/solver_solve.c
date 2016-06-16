@@ -3,7 +3,7 @@
 TEST(solve_works_with_empty_sudoku) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();
     sudoku_puzzle_t solved = puzzle;
-    assertEquals(solve_simple(&solved), false);
+    assertEquals(sudoku_solve_simple(&solved), false);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &solved), true);
 }
 
@@ -23,7 +23,7 @@ TEST(solve_works_with_solved_sudoku) {
 
     assertEquals(sudoku_puzzle_solved(&puzzle), true);
     assertEquals(sudoku_puzzle_valid(&puzzle), true);
-    assertEquals(solve_simple(&solved), true);
+    assertEquals(sudoku_solve_simple(&solved), true);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &solved), true);
 }
 
@@ -82,7 +82,7 @@ TEST(solve_works_with_partially_solved_sudoku) {
             {9, 1, 2, 3, 4, 5, 6, 7, 8}});
 
     for(int i = 0; i < 4; i++) {
-        assertEquals(solve_simple(&puzzles[i]), true);
+        assertEquals(sudoku_solve_simple(&puzzles[i]), true);
         assertEquals(sudoku_puzzle_equals_strict(&puzzles[i], &solved), true);
     }
 }
@@ -100,6 +100,6 @@ TEST(solve_stops_on_diverge) {
             {9, 0, 0, 3, 4, 5, 6, 7, 8}});
 
     sudoku_puzzle_t solved = puzzle;
-    assertEquals(solve_simple(&puzzle), false);
+    assertEquals(sudoku_solve_simple(&puzzle), false);
     assertEquals(sudoku_puzzle_equals(&puzzle, &solved), true);
 }
