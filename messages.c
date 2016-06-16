@@ -1,6 +1,5 @@
 #include "messages.h"
 
-//request_t request_parse(const char *mesg, size_t length) {
 request_t request_parse(GBytes *request) {
     // extract size and pointer from gbytes
     size_t size;
@@ -210,20 +209,6 @@ GBytes *response_create(const response_t *response) {
 }
 
 /*
-sudoku_status worker_handle_sudoku(sudoku_puzzle_t *in) {
-    if(solve_simple(in)) {
-        return (sudoku_status){
-            .type = SUDOKU_SOLVED,
-            .solution = in
-        };
-    } else {
-        return (sudoku_status){
-            .type = SUDOKU_DIVERGE,
-            .diverges = solve_diverge(in)
-        };
-    }
-}
-
 void worker_response_solved(char *buffer, int *len, sudoku_puzzle_t *solution, int task_id) {
     // pack the solution into char array
     // FIXME: magic constant 92
