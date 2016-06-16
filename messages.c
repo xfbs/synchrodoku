@@ -146,6 +146,69 @@ void response_unref(response_t *response) {
     }
 }
 
+response_t response_parse(GBytes *request) {
+    // extract size and pointer from gbytes
+    size_t size;
+    const char *data = g_bytes_get_data(request, &size);
+
+    // create new mpack tree to examine request
+    mpack_tree_t msg;
+    mpack_tree_init(&msg, data, size);
+    mpack_node_t root = mpack_tree_root(&msg);
+
+    // extract the "type" field from the message
+    // check if this is a solution or not
+    bool done = mpack_node_bool(mpack_node_map_cstr(root, "done"));
+
+    // extract id
+    int id = mpack_node_i32(mpack_node_map_cstr(root, "id"));
+
+    // check for eventual errors
+    if(mpack_node_error(root) != mpack_ok) {
+        goto error;
+    }
+
+    if(done == true) {
+        // extract data
+        mpack_node_t payload = mpack_node_map_cstr(root, "data");
+        const char *payload_data = mpack_node_data(payload);
+        size_t payload_size = mpack_node_data_len(payload);
+        GBytes *payload_bytes = g_bytes_new_static(payload_data, payload_size);
+
+        if(mpack_node_error(root) != mpack_ok) {
+            goto error;
+        }
+
+        return response_solution(payload_bytes, id);
+    } else {
+        mpack_node_t divs_node = mpack_node_map_cstr(root, "divs");
+        GList *divs_list = NULL;
+
+        for(int i = 0; i < mpack_node_array_length(divs_node); i++) {
+            mpack_node_t cur_node = mpack_node_array_at(divs_node, i);
+
+            const char *payload_data = mpack_node_data(cur_node);
+            size_t payload_size = mpack_node_data_len(cur_node);
+            GBytes *payload_bytes = g_bytes_new_static(payload_data, payload_size);
+
+            divs_list = g_list_append(divs_list, payload_bytes);
+        }
+
+        if(mpack_node_error(root) != mpack_ok) {
+            goto error;
+        }
+
+        return response_diverge(divs_list, id);
+    }
+
+error:
+    return response_error();
+}
+
+GBytes *response_create(const response_t *response) {
+    return NULL;
+}
+
 /*
 sudoku_status worker_handle_sudoku(sudoku_puzzle_t *in) {
     if(solve_simple(in)) {
