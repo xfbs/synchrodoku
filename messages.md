@@ -43,8 +43,8 @@ the solution along with the ID of the sudoku.
 
 ```
 {
-    "solved": true,
-    "sulution": [12, 45, 23, ...],
+    "done": true,
+    "data": [12, 45, 23, ...],
     "id": 5
 }
 ```
@@ -58,8 +58,8 @@ on.
 
 ```
 {
-    "solved": false,
-    "diverges": [
+    "done": false,
+    "divs": [
         [12, 45, 23, ...],
         [67, 23, 12, ...],
         ...
