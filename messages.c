@@ -205,84 +205,52 @@ error:
 }
 
 GBytes *response_create(const response_t *response) {
-    return NULL;
-}
+    if(response->type == RESPONSE_ERROR) {
+        return NULL;
+    }
 
-/*
-void worker_response_solved(char *buffer, int *len, sudoku_puzzle_t *solution, int task_id) {
-    // pack the solution into char array
-    // FIXME: magic constant 92
-    unsigned char packed[92];
-    sudoku_puzzle_pack(packed, solution);
+    char *data;
+    size_t size;
 
-    // write to mpack format
     mpack_writer_t writer;
-    mpack_writer_init(&writer, buffer, BUFSIZE);
-    
+    mpack_writer_init_growable(&writer, &data, &size);
+
     mpack_start_map(&writer, 3);
 
-    // marks this as solved
-    mpack_write_cstr(&writer, "solved");
-    mpack_write_bool(&writer, true);
+    if(response->type == RESPONSE_SOLUTION) {
+        mpack_write_cstr(&writer, "done");
+        mpack_write_bool(&writer, true);
 
-    // adds the solution sudoku
-    // FIXME magic constant 92
-    mpack_write_cstr(&writer, "solution");
-    mpack_write_str(&writer, (char*) packed, 92);
+        size_t solution_len;
+        const char *solution = g_bytes_get_data(response->data.solution, &solution_len);
+        mpack_write_cstr(&writer, "data");
+        mpack_write_bin(&writer, solution, solution_len);
+    } else if(response->type == RESPONSE_DIVERGES) {
+        mpack_write_cstr(&writer, "done");
+        mpack_write_bool(&writer, false);
 
-    // adds the id of the sudoku
+        GList *diverges = response->data.diverges;
+        mpack_write_cstr(&writer, "divs");
+        mpack_start_array(&writer, g_list_length(diverges));
+
+        for(; diverges != NULL; diverges = diverges->next) {
+            size_t diverge_len;
+            const char *diverge = g_bytes_get_data(diverges->data, &diverge_len);
+            mpack_write_bin(&writer, diverge, diverge_len);
+        }
+
+        mpack_finish_array(&writer);
+    }
+
     mpack_write_cstr(&writer, "id");
-    mpack_write_i32(&writer, task_id);
+    mpack_write_i32(&writer, response->id);
 
     mpack_finish_map(&writer);
 
-    // write the length of the buffer
-    *len = mpack_writer_buffer_used(&writer);
-
     if(mpack_writer_destroy(&writer) != mpack_ok) {
-        fprintf(stderr, "an error occured while encoding the data");
+        if(data) free(data);
+        return NULL;
     }
+
+    return g_bytes_new_with_free_func(data, size, free, data);
 }
-
-void worker_response_diverge(char *buffer, int *len, GList *diverges, int task_id) {
-    // write to mpack format
-    mpack_writer_t writer;
-    mpack_writer_init(&writer, buffer, BUFSIZE);
-    
-    mpack_start_map(&writer, 3);
-
-    // marks this as unsolved
-    mpack_write_cstr(&writer, "solved");
-    mpack_write_bool(&writer, false);
-
-    // adds each divergin sudoku to response
-    mpack_write_cstr(&writer, "diverges");
-    mpack_start_array(&writer, g_list_length(diverges));
-    for(GList *iter = diverges; iter != NULL; iter = iter->next) {
-        // get current sudoku
-        sudoku_puzzle_t *sudoku = iter->data;
-
-        // pack the solution into char array
-        // FIXME: magic constant 92
-        unsigned char packed[92];
-        sudoku_puzzle_pack(packed, sudoku);
-
-        mpack_write_str(&writer, (char*) packed, 92);
-    }
-
-    mpack_finish_array(&writer);
-
-    // adds the id of the divering sudoku
-    mpack_write_cstr(&writer, "id");
-    mpack_write_i32(&writer, task_id);
-
-    mpack_finish_map(&writer);
-
-    // write the length of the buffer
-    *len = mpack_writer_buffer_used(&writer);
-
-    if(mpack_writer_destroy(&writer) != mpack_ok) {
-        fprintf(stderr, "an error occured while encoding the data");
-    }
-}
-*/
