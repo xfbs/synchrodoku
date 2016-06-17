@@ -43,7 +43,8 @@ int sudoku_cell_candidates(const sudoku_cell_t *cell);
 sudoku_cell_t sudoku_cell_new(int poss[]);
 
 // returns a cell with all candidates set
-sudoku_cell_t sudoku_cell_any();
+#define sudoku_cell_any() \
+    ((sudoku_cell_t){.numbers = {1,1,1,1,1,1,1,1,1}})
 
 // return the intersection of two cells, that is
 // a cell that has all candidates set that are

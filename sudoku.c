@@ -358,16 +358,6 @@ sudoku_cell_t sudoku_cell_new(int poss[]) {
     return cell;
 }
 
-sudoku_cell_t sudoku_cell_any() {
-    sudoku_cell_t cell;
-
-    for(int n = 0; n < 9; n++) {
-        cell.numbers[n] = true;
-    }
-
-    return cell;
-}
-
 sudoku_puzzle_t sudoku_puzzle_new(int numbers[9][9]) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();;
 
