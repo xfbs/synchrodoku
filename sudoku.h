@@ -5,30 +5,34 @@
 #include <glib.h>
 #define SUDOKU_PACKED_SIZE 92
 
+// represents a single sudoku cell
 typedef struct sudoku_cell {
     bool numbers[9];
 } sudoku_cell_t;
 
+// represents a sudoku as 9 by 9 array of
+// sudoku cells
 typedef struct sudoku_puzzle {
     sudoku_cell_t cells[9][9];
 } sudoku_puzzle_t;
 
-// returns true if the cell has a single solution
+// checks if the cell has a (single) solution
 bool sudoku_cell_solved(const sudoku_cell_t *cell);
 
-// returns true if the cell has a single solution
-// or more than one candidates
+// checks if the cell is solvable, meaning that
+// it has one or more possible solutions
 bool sudoku_cell_solvable(const sudoku_cell_t *cell);
 
-// returns the solution of the cell, or 0 if it
-// doesn't have one
+// returns the solution of the cell (number between
+// 1 and 9), or 0 if there isn't any or there are multiple
 int sudoku_cell_solution(const sudoku_cell_t *cell);
 
-// returns how many candidates the cell has
+// returns the amount of candidates the cell has
 int sudoku_cell_candidates(const sudoku_cell_t *cell);
 
 // returns a cell with no candidates
-sudoku_cell_t sudoku_cell_empty();
+#define sudoku_cell_empty() \
+    ((sudoku_cell_t){.numbers = {false}})
 
 // returns a cell with a single solution, num
 sudoku_cell_t sudoku_cell_single(int num);

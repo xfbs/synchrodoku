@@ -346,16 +346,6 @@ sudoku_puzzle_t sudoku_puzzle_empty() {
     return puzzle;
 }
 
-sudoku_cell_t sudoku_cell_empty() {
-    sudoku_cell_t cell;
-
-    for(int n = 0; n < 9; n++) {
-        cell.numbers[n] = false;
-    }
-
-    return cell;
-}
-
 sudoku_cell_t sudoku_cell_single(int num) {
     sudoku_cell_t cell = sudoku_cell_empty();
 
