@@ -1,10 +1,19 @@
 #include "worker.h"
 
+/*
+typedef struct {
+    int id;
+    handle_request_func handle_request;
+    void *zmq_ctx;
+    const char *reqsock;
+    const char *repsock;
+} worker_options_t;
+
 int ret;
 
-response_t worker_handle_request(worker_t *options, request_t *request);
-
 void *worker_loop(worker_t *options) {
+    // socket to recieve requests and send responses
+    // back
     void *requests = zmq_socket(options->zmq_ctx, ZMQ_PULL);
     void *responses = zmq_socket(options->zmq_ctx, ZMQ_PUSH);
 
@@ -18,6 +27,8 @@ void *worker_loop(worker_t *options) {
     const int initial_bufsize = 1024;
 
     while(!shutdown) {
+        // TODO: preseve byte array in between loops for
+        // mor efficiency
         GByteArray *in = g_byte_array_new();
 
         in = g_byte_array_set_size(in, initial_bufsize);
@@ -27,8 +38,11 @@ void *worker_loop(worker_t *options) {
 
         // if there was an error, try again
         if(ret < 0) {
+            g_byte_array_unref(in);
             continue;
         }
+
+        in = g_byte_array_set_size(in, ret);
 
         // if the message was too big, recieve the
         // rest now
@@ -67,7 +81,25 @@ void *worker_loop(worker_t *options) {
     return NULL;
 }
 
-/*
+void worker_launch(worker_t *worker) {
+    pthread_create(&worker->thread, NULL, worker_loop, worker);
+}
+
+void worker_join(worker_t *worker) {
+    pthread_join(&worker->thead, NULL);
+}
+
+worker_pool_t worker_pool_new(const char *reqs, const char *reps, int size) {
+    worker_pool_t pool;
+
+    pool.workers = NULL;
+    pool.handle_request = NULL;
+    pool.zmq_ctx = zmq_ctx_new();
+
+    return pool;
+}
+
+
 void *
 worker_loop(void *opts)
 {

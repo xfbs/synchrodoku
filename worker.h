@@ -19,13 +19,36 @@ typedef struct {
     pthread_t thread;
     int id;
     handle_request_func handle_request;
-    void *zmq_ctx;
     const char *reqsock;
     const char *repsock;
 } worker_t;
 
-void worker_launch(worker_t *options);
+typedef struct {
+   GList *workers;
+   handle_request_func handle_request;
+   void *zmq_ctx;
+   void *requests;
+   void *responses;
+} worker_pool_t;
 
-GList *worker_pool(int count);
+/*
+void worker_launch(worker_t *worker);
+
+void worker_send(worker_t *worker, GBytes *data, int opts);
+
+GBytes *worker_recv(worker_t *worker, int opts);
+
+void worker_join(worker_t *worker);
+*/
+
+worker_pool_t worker_pool_new(const char *reqs, const char *reps, int size);
+
+void worker_pool_shutdown(worker_pool_t *pool);
+
+void worker_pool_send(GBytes *data);
+
+void worker_pool_join(worker_pool_t *pool);
+
+GBytes *worker_pool_recv(worker_pool_t *pool);
 
 #endif
