@@ -14,8 +14,9 @@ TEST(diverge_returns_solved_sudoku) {
 
     GList *solved = sudoku_solve_diverge(&puzzle);
     assertEquals(g_list_length(solved), 1);
-    assertEquals(sudoku_puzzle_equals(g_list_first(solved)->data, &puzzle), true);
-    g_list_free_full(solved, free);
+    sudoku_puzzle_t first = sudoku_puzzle_unpack(g_list_first(solved)->data);
+    assertEquals(sudoku_puzzle_equals(&first, &puzzle), true);
+    g_list_free_full(solved, (void (*)(void*))g_bytes_unref);
 }
 
 TEST(diverge_returns_correct_amount) {
@@ -115,7 +116,7 @@ TEST(diverge_returns_correct_amount) {
         assertEquals(sudoku_solve_simple(&puzzles[i]), (i==0) ? true : false);
         GList *res = sudoku_solve_diverge(&puzzles[i]);
         assertEquals(g_list_length(res), i+1);
-        g_list_free_full(res, free);
+        g_list_free_full(res, (void (*)(void*))g_bytes_unref);
     }
 }
 
@@ -140,6 +141,12 @@ TEST(diverge_returns_correct_sudokus) {
     GList *div = sudoku_solve_diverge(&puzzle);
     assertEquals(g_list_length(div), 2);
 
-    assertEquals(sudoku_puzzle_equals_strict(g_list_nth_data(div, 0), &solutions[0]), true);
-    assertEquals(sudoku_puzzle_equals_strict(g_list_nth_data(div, 1), &solutions[1]), true);
+    sudoku_puzzle_t got[] = {
+        sudoku_puzzle_unpack(g_list_nth_data(div, 0)),
+        sudoku_puzzle_unpack(g_list_nth_data(div, 1))};
+
+    assertEquals(sudoku_puzzle_equals_strict(&got[0], &solutions[0]), true);
+    assertEquals(sudoku_puzzle_equals_strict(&got[1], &solutions[1]), true);
+
+    g_list_free_full(div, (void (*)(void*))g_bytes_unref);
 }

@@ -470,17 +470,14 @@ GList *sudoku_solve_diverge(sudoku_puzzle_t *puzzle) {
 
     for(int n = 0; n < 9; n++) {
         if(!div_cell->numbers[n]) continue;
-
-        // allocate new sudoku
-        sudoku_puzzle_t *div = malloc(sizeof(sudoku_puzzle_t));
-        assert(div != NULL);
+        sudoku_puzzle_t div;
 
         // copy puzzle into new sudoku
-        *div = *puzzle;
+        div = *puzzle;
 
         // but change the cell we are divering
         // upon to whatever we want to set it
-        sudoku_cell_t *new_cell = sudoku_puzzle_cell(div, div_row, div_col);
+        sudoku_cell_t *new_cell = sudoku_puzzle_cell(&div, div_row, div_col);
         for(int i = 0; i < 9; i++) {
             if(i != n) {
                 new_cell->numbers[i] = false;
@@ -489,7 +486,7 @@ GList *sudoku_solve_diverge(sudoku_puzzle_t *puzzle) {
 
         // add diverged sudoku to list of
         // results
-        results = g_list_append(results, div);
+        results = g_list_append(results, sudoku_puzzle_pack(&div));
     }
 
     return results;

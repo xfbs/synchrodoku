@@ -107,8 +107,13 @@ GBytes *sudoku_puzzle_pack(const sudoku_puzzle_t *puzzle);
 // read a sudoku from a binary representation
 sudoku_puzzle_t sudoku_puzzle_unpack(GBytes *packed);
 
+// try to solve a sudoku simply by eliminating candidates
+// returnes true if it solved the sudoku
 bool sudoku_solve_simple(sudoku_puzzle_t *puzzle);
 
+// for a sudoku that cannot be solved simply by eliminating
+// candidates, this function returns a list of possible divergion
+// paths (as packed GBytes *)
 GList *sudoku_solve_diverge(sudoku_puzzle_t *puzzle);
 
 #endif
