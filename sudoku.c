@@ -346,16 +346,6 @@ sudoku_puzzle_t sudoku_puzzle_empty() {
     return puzzle;
 }
 
-sudoku_cell_t sudoku_cell_single(int num) {
-    sudoku_cell_t cell = sudoku_cell_empty();
-
-    if(num >= 1 && num <= 9) {
-        cell.numbers[num-1] = true;
-    }
-
-    return cell;
-}
-
 sudoku_cell_t sudoku_cell_new(int poss[]) {
     sudoku_cell_t cell = sudoku_cell_empty();
 

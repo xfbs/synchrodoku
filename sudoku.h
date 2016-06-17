@@ -35,7 +35,7 @@ int sudoku_cell_candidates(const sudoku_cell_t *cell);
     ((sudoku_cell_t){.numbers = {false}})
 
 // returns a cell with a single solution, num
-sudoku_cell_t sudoku_cell_single(int num);
+#define sudoku_cell_single(num) sudoku_cell_new((int[]){num, 0})
 
 // returns a new cell with the specified solutions,
 // poss is an array of the solution with 0 denoting
