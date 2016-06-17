@@ -101,10 +101,11 @@ json_t *sudoku_puzzle_to_json(const sudoku_puzzle_t *puzzle);
 sudoku_puzzle_t sudoku_puzzle_from_json(json_t *json);
 
 // pack a sudoku into a binary representation
-void sudoku_puzzle_pack(unsigned char out[SUDOKU_PACKED_SIZE], const sudoku_puzzle_t *puzzle);
+//void sudoku_puzzle_pack(unsigned char out[SUDOKU_PACKED_SIZE], const sudoku_puzzle_t *puzzle);
+GBytes *sudoku_puzzle_pack(const sudoku_puzzle_t *puzzle);
 
 // read a sudoku from a binary representation
-sudoku_puzzle_t sudoku_puzzle_unpack(const unsigned char packed[SUDOKU_PACKED_SIZE]);
+sudoku_puzzle_t sudoku_puzzle_unpack(GBytes *packed);
 
 bool sudoku_solve_simple(sudoku_puzzle_t *puzzle);
 

@@ -245,18 +245,24 @@ sudoku_cell_t sudoku_puzzle_from_json_parse_cell(json_t *jcell) {
     return cell;
 }
 
-void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle) {
+GBytes *sudoku_puzzle_pack(const sudoku_puzzle_t *puzzle) {
+    GByteArray *packed = g_byte_array_new();
+    assert(packed != NULL);
+
+    // FIXME: magic value!
+    g_byte_array_set_size(packed, 92);
+
     int pos = 0;
 
     for(int r = 0; r < 9; r++) {
         for(int c = 0; c < 9; c++) {
             const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, r, c);
 
-            packed[pos] = 0;
+            packed->data[pos] = 0;
 
             for(int n = 0; n < 8; n++) {
-                packed[pos] <<= 1;
-                packed[pos] += (cell->numbers[n]) ? 1 : 0;
+                packed->data[pos] <<= 1;
+                packed->data[pos] += (cell->numbers[n]) ? 1 : 0;
             }
 
             pos++;
@@ -264,36 +270,45 @@ void sudoku_puzzle_pack(unsigned char packed[92], const sudoku_puzzle_t *puzzle)
     }
 
     for(int r = 0; r < 9; r++) {
-        packed[pos] = 0;
+        packed->data[pos] = 0;
 
         for(int c = 0; c < 8; c++) {
-            packed[pos] <<= 1;
+            packed->data[pos] <<= 1;
 
             const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, r, c);
 
-            packed[pos] += cell->numbers[8] ? 1 : 0;
+            packed->data[pos] += cell->numbers[8] ? 1 : 0;
         }
 
         pos++;
     }
 
-    packed[pos] = 0;
+    packed->data[pos] = 0;
 
     for(int r = 0; r < 8; r++) {
-        packed[pos] <<= 1;
+        packed->data[pos] <<= 1;
 
         const sudoku_cell_t *cell = sudoku_puzzle_cell_const(puzzle, r, 8);
 
-        packed[pos] += cell->numbers[8] ? 1 : 0;
+        packed->data[pos] += cell->numbers[8] ? 1 : 0;
     }
 
     pos++;
-    packed[pos] = sudoku_puzzle_cell_const(puzzle, 8, 8)->numbers[8] ? 255 : 0;
+    packed->data[pos] = sudoku_puzzle_cell_const(puzzle, 8, 8)->numbers[8] ? 255 : 0;
 
     assert(pos == 91);
+
+    return g_byte_array_free_to_bytes(packed);
 }
 
-sudoku_puzzle_t sudoku_puzzle_unpack(const unsigned char packed[92]) {
+sudoku_puzzle_t sudoku_puzzle_unpack(GBytes *packed_bytes) {
+    // extract data from bytes
+    size_t packed_size;
+    const char *packed = g_bytes_get_data(packed_bytes, &packed_size);
+    
+    // make sure there is enough of it
+    assert(packed_size == 92);
+
     sudoku_puzzle_t puzzle;
     sudoku_cell_t *cell;
     int pos = 0;

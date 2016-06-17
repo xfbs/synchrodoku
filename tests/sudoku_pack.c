@@ -1,14 +1,14 @@
 #include "helpers.h"
 
-unsigned char packed[SUDOKU_PACKED_SIZE];
-
 TEST(pack_works_on_empty) {
     sudoku_puzzle_t puzzle = sudoku_puzzle_empty();
 
-    sudoku_puzzle_pack(packed, &puzzle);
+    GBytes *packed = sudoku_puzzle_pack(&puzzle);
     sudoku_puzzle_t unpacked = sudoku_puzzle_unpack(packed);
 
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
+
+    g_bytes_unref(packed);
 }
 
 TEST(pack_preserves_bits) {
@@ -19,9 +19,10 @@ TEST(pack_preserves_bits) {
             for(int n = 1; n <= 9; n++) {
                 *(sudoku_puzzle_cell(&puzzle, r, c)) = sudoku_cell_new((int[]){n, 0});
 
-                sudoku_puzzle_pack(packed, &puzzle);
+                GBytes *packed = sudoku_puzzle_pack(&puzzle);
                 sudoku_puzzle_t unpacked = sudoku_puzzle_unpack(packed);
                 assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
+                g_bytes_unref(packed);
 
                 if(n == 9) {
                     *(sudoku_puzzle_cell(&puzzle, r, c)) = sudoku_cell_new((int[]){0});
@@ -45,17 +46,19 @@ TEST(pack_works_with_random) {
             {2, 3, 6, 9, 0, 0, 0, 7, 0},
             {5, 1, 2, 9, 8, 5, 5, 8, 7}});
 
-    sudoku_puzzle_pack(packed, &puzzle);
+    GBytes *packed = sudoku_puzzle_pack(&puzzle);
     unpacked = sudoku_puzzle_unpack(packed);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
+    g_bytes_unref(packed);
 
     // modify puzzle slightly
     *(sudoku_puzzle_cell(&puzzle, 2, 2)) = sudoku_cell_new((int[]){3, 5, 9, 0});
     *(sudoku_puzzle_cell(&puzzle, 5, 3)) = sudoku_cell_new((int[]){8, 4, 0});
 
-    sudoku_puzzle_pack(packed, &puzzle);
+    packed = sudoku_puzzle_pack(&puzzle);
     unpacked = sudoku_puzzle_unpack(packed);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
+    g_bytes_unref(packed);
 
     puzzle = sudoku_puzzle_new((int[9][9]){
             {1, 2, 3, 4, 5, 6, 7, 8, 9},
@@ -68,7 +71,8 @@ TEST(pack_works_with_random) {
             {2, 3, 6, 9, 2, 0, 2, 7, 0},
             {5, 1, 2, -1, 8, 6, 6, 8, 7}});
 
-    sudoku_puzzle_pack(packed, &puzzle);
+    packed = sudoku_puzzle_pack(&puzzle);
     unpacked = sudoku_puzzle_unpack(packed);
     assertEquals(sudoku_puzzle_equals_strict(&puzzle, &unpacked), true);
+    g_bytes_unref(packed);
 }
