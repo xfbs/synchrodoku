@@ -5,10 +5,6 @@
 #include <glib.h>
 #include <assert.h>
 
-bool solve_simple(sudoku_puzzle_t *puzzle);
-
-GList *solve_diverge(sudoku_puzzle_t *puzzle);
-
-response_t solve_sudoku(GBytes *data);
+response_t solve_sudoku(request_t *request);
 
 #endif
