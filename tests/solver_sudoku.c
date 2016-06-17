@@ -60,4 +60,53 @@ TEST(solve_sudoku_works_with_solved_sudoku) {
 }
 
 TEST(solve_sudoku_works_with_diverging_sudoku) {
+    sudoku_puzzle_t puzzle = sudoku_puzzle_new((int[9][9]){
+            {0, 0, 3, 4, 5, 6, 7, 8, 9},
+            {4, 5, 6, 7, 8, 9, 0, 0, 3},
+            {7, 8, 9, 0, 0, 3, 4, 5, 6},
+            {3, 4, 5, 6, 7, 8, 9, 0, 0},
+            {6, 7, 8, 9, 0, 0, 3, 4, 5},
+            {9, 0, 0, 3, 4, 5, 6, 7, 8},
+            {0, 3, 4, 5, 6, 7, 8, 9, 0},
+            {5, 6, 7, 8, 9, 0, 0, 3, 4},
+            {8, 9, 0, 0, 3, 4, 5, 6, 7}});
+    sudoku_puzzle_t solutions[] = {
+        sudoku_puzzle_new((int[9][9]){
+            {1, 0, 3, 4, 5, 6, 7, 8, 9},
+            {4, 5, 6, 7, 8, 9, 0, 0, 3},
+            {7, 8, 9, 0, 0, 3, 4, 5, 6},
+            {3, 4, 5, 6, 7, 8, 9, 0, 0},
+            {6, 7, 8, 9, 0, 0, 3, 4, 5},
+            {9, 0, 0, 3, 4, 5, 6, 7, 8},
+            {0, 3, 4, 5, 6, 7, 8, 9, 0},
+            {5, 6, 7, 8, 9, 0, 0, 3, 4},
+            {8, 9, 0, 0, 3, 4, 5, 6, 7}}),
+        sudoku_puzzle_new((int[9][9]){
+            {2, 0, 3, 4, 5, 6, 7, 8, 9},
+            {4, 5, 6, 7, 8, 9, 0, 0, 3},
+            {7, 8, 9, 0, 0, 3, 4, 5, 6},
+            {3, 4, 5, 6, 7, 8, 9, 0, 0},
+            {6, 7, 8, 9, 0, 0, 3, 4, 5},
+            {9, 0, 0, 3, 4, 5, 6, 7, 8},
+            {0, 3, 4, 5, 6, 7, 8, 9, 0},
+            {5, 6, 7, 8, 9, 0, 0, 3, 4},
+            {8, 9, 0, 0, 3, 4, 5, 6, 7}})};
+
+    request_t request = request_task(sudoku_puzzle_pack(&puzzle), 934);
+    response_t response = solve_sudoku(&request);
+
+    assertEquals(request.id, response.id);
+    assertEquals(response.type, RESPONSE_DIVERGES);
+    assertNotEquals(response.data.diverges, NULL);
+    assertEquals(g_list_length(response.data.diverges), 2);
+
+    sudoku_puzzle_t got[] = {
+        sudoku_puzzle_unpack(g_list_nth_data(response.data.diverges, 0)),
+        sudoku_puzzle_unpack(g_list_nth_data(response.data.diverges, 1))};
+
+    assertEquals(sudoku_puzzle_equals(&got[0], &solutions[0]), true);
+    assertEquals(sudoku_puzzle_equals(&got[1], &solutions[1]), true);
+
+    request_unref(&request);
+    response_unref(&response);
 }

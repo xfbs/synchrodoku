@@ -41,6 +41,7 @@ TEST(diverge_returns_correct_sudokus);
 TEST(solve_sudoku_does_nothing_on_shutdown_request);
 TEST(solve_sudoku_does_nothing_on_error_request);
 TEST(solve_sudoku_works_with_solved_sudoku);
+TEST(solve_sudoku_works_with_diverging_sudoku);
 
 /* request_new.c */
 TEST(request_error_works);
@@ -129,6 +130,7 @@ TEST_SUITE(solver_sudoku) {
     TEST_ADD(solve_sudoku_does_nothing_on_shutdown_request),
     TEST_ADD(solve_sudoku_does_nothing_on_error_request),
     TEST_ADD(solve_sudoku_works_with_solved_sudoku),
+    TEST_ADD(solve_sudoku_works_with_diverging_sudoku),
     TEST_SUITE_CLOSURE
 };
 
