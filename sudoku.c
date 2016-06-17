@@ -71,6 +71,7 @@ bool sudoku_puzzle_solvable(const sudoku_puzzle_t *puzzle) {
 }
 
 bool sudoku_puzzle_valid(const sudoku_puzzle_t *puzzle) {
+    // TODO
     return true;
 }
 
@@ -294,7 +295,7 @@ GBytes *sudoku_puzzle_pack(const sudoku_puzzle_t *puzzle) {
     }
 
     pos++;
-    packed->data[pos] = sudoku_puzzle_cell_const(puzzle, 8, 8)->numbers[8] ? 255 : 0;
+    packed->data[pos] = sudoku_puzzle_cell_const(puzzle, 8, 8)->numbers[8] ? 128 : 0;
 
     assert(pos == 91);
 
