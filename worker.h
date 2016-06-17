@@ -13,20 +13,19 @@
 #include "solver.h"
 #include "messages.h"
 
-typedef response_t handle_request_func(request_t *request);
+typedef response_t (*handle_request_func)(request_t *request);
 
 typedef struct {
-    pthread thread;
+    pthread_t thread;
     int id;
     handle_request_func handle_request;
     void *zmq_ctx;
+    const char *reqsock;
+    const char *repsock;
 } worker_t;
 
 void worker_launch(worker_t *options);
 
 GList *worker_pool(int count);
 
-//void *worker_loop(void *opts);
-
-//void worker_set_zmq_ctx(void *context);
 #endif

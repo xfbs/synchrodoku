@@ -11,7 +11,7 @@ void *worker_loop(worker_t *options) {
     // connect to sockets
     ret = zmq_connect(requests, options->reqsock);
     assert(ret == 0);
-    ret = zmq_connect(responses, options->respsock);
+    ret = zmq_connect(responses, options->repsock);
     assert(ret == 0);
 
     bool shutdown = false;
