@@ -6,7 +6,7 @@ response_t solve_sudoku(request_t *request) {
     }
 
     // unpack sudoku puzzle
-    sudoku_puzzle_t sudoku = sudoku_puzzle_unpack(request->data);
+    //sudoku_puzzle_t sudoku = sudoku_puzzle_unpack(request->data);
 
     // check if we can solve this
     if(sudoku_solve_simple(&sudoku)) {
@@ -14,4 +14,14 @@ response_t solve_sudoku(request_t *request) {
     } else {
         return response_diverge(sudoku_solve_diverge(&sudoku), request->id);
     }
+}
+
+response_t solve_nothing(request_t *request) {
+    return response_diverge(NULL, request->id);
+}
+
+response_t solve_easy(request_t *request) {
+    const char data[] = {1, 2, 3, 4};
+    size_t data_len = 4;
+    return response_solution(g_bytes_new_static(data, data_len), request->id);
 }
