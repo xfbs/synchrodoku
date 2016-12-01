@@ -6,7 +6,7 @@ response_t solve_sudoku(request_t *request) {
     }
 
     // unpack sudoku puzzle
-    //sudoku_puzzle_t sudoku = sudoku_puzzle_unpack(request->data);
+    sudoku_puzzle_t sudoku = sudoku_puzzle_unpack(request->data);
 
     // check if we can solve this
     if(sudoku_solve_simple(&sudoku)) {
