@@ -16,10 +16,10 @@ CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
 
 $(TARGET): $(FILES:%=%.o) $(DEPS)
-	ar crs $@ $^
+	ar rcs $@ $^
 	#ranlib $@
 
-synchrodoku: $(TARGET) synchrodoku.o
+synchrodoku: synchrodoku.o $(TARGET) $(MPACKLIB)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 tests: $(TARGET) $(TEST_DEPS) ./tests/output
