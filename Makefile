@@ -1,7 +1,7 @@
 CC = clang
 RM = rm -rf
 CFLAGS = -g -Wall -pedantic -std=gnu99
-FILES = sudoku solver messages worker
+FILES = sudoku solver messages worker manager
 TARGET = libsynchrodoku.a
 HEADERS = $(FILES:%=%.h)
 LIBS = pthread czmq zmq
@@ -16,8 +16,11 @@ CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
 
 $(TARGET): $(FILES:%=%.o) $(DEPS)
-	ar cr $@ $^
-	ranlib $@
+	ar crs $@ $^
+	#ranlib $@
+
+synchrodoku: $(TARGET) synchrodoku.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 tests: $(TARGET) $(TEST_DEPS) ./tests/output
 

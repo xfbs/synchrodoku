@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <glib.h>
+#include <mpack/mpack.h>
+#include <mpack/mpack-writer.h>
+#include "manager.h"
 
 typedef struct {
     int id;
@@ -15,13 +18,7 @@ typedef struct {
 
 void *worker_task(void *);
 void *context;
-pthread manager_thread;
-
-int
-main(int argc, char *argv[])
-{
-    return 0;
-}
+pthread_t manager_thread;
 
 void manager_start(int thread_count)
 {
@@ -47,7 +44,7 @@ void manager_stop(void)
     char *data;
     size_t size;
     mpack_writer_t writer;
-    mapck_writer_init_growable(&writer, &data, &size);
+    mpack_writer_init_growable(&writer, &data, &size);
 
     mpack_start_map(&writer, 1);
     mpack_write_cstr(&writer, "type");
@@ -64,9 +61,11 @@ void manager_stop(void)
 
     free(data);
     zmq_ctx_destroy(context);
+
+    pthread_join(manager_thread, NULL);
 }
 
-void manager_loop(void *data)
+void *manager_loop(void *data)
 {
     // create new socket
     void *requests = zmq_socket(context, ZMQ_REP);
@@ -146,7 +145,7 @@ void manager_loop(void *data)
     zmq_close(requests);
     zmq_close(solutions);
 
-    return 0;
+    return NULL;
 }
 
 void *

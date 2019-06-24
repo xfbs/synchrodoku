@@ -16,5 +16,6 @@ void manager_start(int thread_count);
 sudoku_puzzle_t manager_solve_sudoku(sudoku_puzzle_t *puzzle);
 
 void manager_stop(void);
+void *manager_loop(void *data);
 
 #endif
