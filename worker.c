@@ -1,6 +1,9 @@
+// vim: noet:ts=4:sw=4
+#include <czmq.h>
+#include <zsock.h>
 #include "worker.h"
 
-/*
+
 typedef struct {
     int id;
     handle_request_func handle_request;
@@ -11,9 +14,10 @@ typedef struct {
 
 int ret;
 
-void *worker_loop(worker_t *options) {
+void *worker_loop(void *data) {
     // socket to recieve requests and send responses
     // back
+    /*
     void *requests = zmq_socket(options->zmq_ctx, ZMQ_PULL);
     void *responses = zmq_socket(options->zmq_ctx, ZMQ_PUSH);
 
@@ -22,10 +26,16 @@ void *worker_loop(worker_t *options) {
     assert(ret == 0);
     ret = zmq_connect(responses, options->repsock);
     assert(ret == 0);
+    */
+	worker_t *options = data;
+	assert(options);
+	assert(options->requests);
+	//assert(options->responses);
 
     bool shutdown = false;
     const int initial_bufsize = 1024;
 
+	/*
     while(!shutdown) {
         // TODO: preseve byte array in between loops for
         // mor efficiency
@@ -72,15 +82,17 @@ void *worker_loop(worker_t *options) {
         request_unref(&request);
         response_unref(&response);
     }
+	*/
 
     // flush incoming work?
 
-    zmq_close(requests);
-    zmq_close(responses);
+    zsock_destroy(&options->requests);
+    //zsock_destroy(&options->responses);
 
     return NULL;
 }
 
+/*
 void worker_launch(worker_t *worker) {
     pthread_create(&worker->thread, NULL, worker_loop, worker);
 }
@@ -222,5 +234,4 @@ bailout:
 
     return NULL;
 }
-
 */

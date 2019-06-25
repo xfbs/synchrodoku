@@ -1,3 +1,4 @@
+// vim: noet:ts=4:sw=4
 #ifndef WORKER_H
 #define WORKER_H
 #include <zmq.h>
@@ -21,6 +22,8 @@ typedef struct {
     handle_request_func handle_request;
     const char *reqsock;
     const char *repsock;
+	zsock_t *requests;
+	zsock_t *responses;
 } worker_t;
 
 typedef struct {
@@ -50,5 +53,7 @@ void worker_pool_send(GBytes *data);
 void worker_pool_join(worker_pool_t *pool);
 
 GBytes *worker_pool_recv(worker_pool_t *pool);
+
+void *worker_loop(void *data);
 
 #endif

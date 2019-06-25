@@ -1,4 +1,6 @@
-#include <zmq.h>
+// vim: noet:ts=4:sw=4
+#include <czmq.h>
+#include <zsock.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -10,6 +12,8 @@
 #include <mpack/mpack.h>
 #include <mpack/mpack-writer.h>
 #include "manager.h"
+#include "log.h"
+#include "worker.h"
 
 typedef struct {
     int id;
@@ -20,8 +24,10 @@ void *worker_task(void *);
 void *context;
 pthread_t manager_thread;
 
-void manager_start(int thread_count)
+void manager_start(manager_options_t options)
 {
+    log("starting");
+
     // create a new zmq context for use in this program
     // this is shared among all threads
     context = zmq_ctx_new();
@@ -30,11 +36,13 @@ void manager_start(int thread_count)
     // we are only using inter-thread communication
     zmq_ctx_set (context, ZMQ_IO_THREADS, 0);
 
-    pthread_create(&manager_thread, NULL, manager_loop, &thread_count);
+    pthread_create(&manager_thread, NULL, manager_loop, &options);
 }
 
 void manager_stop(void)
 {
+	log("stopping");
+    /*
     void *requests = zmq_socket(context, ZMQ_REQ);
 
     int ret = zmq_connect(requests, "inproc://control");
@@ -61,40 +69,48 @@ void manager_stop(void)
 
     free(data);
     zmq_ctx_destroy(context);
+    */
 
     pthread_join(manager_thread, NULL);
 }
 
 void *manager_loop(void *data)
 {
-    // create new socket
-    void *requests = zmq_socket(context, ZMQ_REP);
-    void *solutions = zmq_socket(context, ZMQ_PUB);
-    void *tasks = zmq_socket(context, ZMQ_PUSH);
-    void *responses = zmq_socket(context, ZMQ_PULL);
-    
-    printf("[manager] started\n");
+    log("manager loop started");
 
-    int ret;
-    ret = zmq_bind (tasks, "inproc://tasks");
-    assert(ret == 0);
-    ret = zmq_bind(responses, "inproc://responses");
-    assert(ret == 0);
-    ret = zmq_bind(requests, "inproc://requests");
-    assert(ret == 0);
-    ret = zmq_bind(solutions, "inproc://responses");
-    assert(ret == 0);
+	// grab options.
+	manager_options_t *options = data;
+	assert(options);
+	assert(options->thread_count);
 
-    printf("[manager] bound to sockets\n");
+    // create sockets
+	zsock_t *tasks = zsock_new_push("inproc://tasks");
+	zsock_t *solutions = zsock_new_pub("inproc://solutions");
+	zsock_t *requests = zsock_new_push("@inproc://requests");
+	zsock_t *responses = zsock_new_pull(">inproc://responses");
+
+	// make sure creation worked
+	assert(requests);
+	assert(solutions);
+	assert(tasks);
+	assert(responses);
 
     // create all workers
-    pthread_t workers[10];
-    for(int i = 0; i < 10; i++) {
-        pthread_create(&workers[i], NULL, worker_task, (void*) i);
+    //pthread_t workers[options->thread_count];
+	worker_t workers[options->thread_count];
+    for(int i = 0; i < options->thread_count; i++) {
+		workers[i].id = i;
+		workers[i].requests = zsock_new_pull(">inproc://requests");
+		//workers[i].responses = zsock_new_push("@inproc://responses");
+		assert(workers[i].requests);
+		//assert(workers[i].responses);
+		log("starting worker #%i", i);
+        assert(pthread_create(&workers[i].thread, NULL, worker_loop, &workers[i]) == 0);
     }
 
-    printf("[manager] started workers\n");
-    usleep(500000);
+    log("started all workers");
+    //usleep(500000);
+    /*
 
     // work queues
     GList *partial_solutions = g_list_alloc();
@@ -111,7 +127,7 @@ void *manager_loop(void *data)
             char mesg[] = {23, 56};
             zmq_send(tasks, mesg, 2, ZMQ_DONTWAIT);
         }
-        
+
         printf("[manager] sent some messages\n");
         fflush(stdout);
 
@@ -139,15 +155,19 @@ void *manager_loop(void *data)
     }
 
     printf("[manager] all workers dead\n");
+    */
 
-    zmq_close(tasks);
-    zmq_close(responses);
-    zmq_close(requests);
-    zmq_close(solutions);
+	zsock_destroy(&requests);
+	zsock_destroy(&responses);
+	zsock_destroy(&tasks);
+	zsock_destroy(&solutions);
+
+	log("loop stopped");
 
     return NULL;
 }
 
+/*
 void *
 worker_task(void *opts)
 {
@@ -208,5 +228,4 @@ bailout:
 
     return NULL;
 }
-
-
+*/

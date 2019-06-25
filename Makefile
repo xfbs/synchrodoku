@@ -12,7 +12,7 @@ TESTLIB = cu/libcu.a
 MPACKLIB = mpack/libmpack.a
 DEPS = $(MPACKLIB)
 
-CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)`
+CFLAGS += $(INCLUDE:%=-I%) `pkg-config --cflags $(PKGLIBS)` -DDEBUG
 LDFLAGS = $(LIBSDIR:%=-L%) `pkg-config --libs $(PKGLIBS)` $(LIBS:%=-l%)
 
 $(TARGET): $(FILES:%=%.o) $(DEPS)

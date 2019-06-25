@@ -1,3 +1,4 @@
+// vim: noet:ts=4:sw=4
 #ifndef MANAGER_H
 #define MANAGER_H
 #include <zmq.h>
@@ -11,7 +12,11 @@
 #include "sudoku.h"
 #include "solver.h"
 
-void manager_start(int thread_count);
+typedef struct {
+  int thread_count;
+} manager_options_t;
+
+void manager_start(manager_options_t options);
 
 sudoku_puzzle_t manager_solve_sudoku(sudoku_puzzle_t *puzzle);
 
